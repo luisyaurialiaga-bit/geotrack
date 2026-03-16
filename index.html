@@ -477,6 +477,8 @@ select.filter-sel{
       <div class="nav-div"></div>
       <div class="nb" onclick="navTo('chat',this)">💬<div class="tip">Chat Equipo</div></div>
       <div class="nb" onclick="navTo('noticias',this)">🌐<div class="tip">Noticias</div></div>
+      <div class="nav-div"></div>
+      <div class="nb" onclick="navTo('juego',this)">🎮<div class="tip">GeoBreak</div></div>
     </nav>
 
     <div class="main-panel" id="main-panel">
@@ -575,20 +577,30 @@ select.filter-sel{
         <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
           <div class="card" style="padding:16px">
             <div class="chat-msgs" id="chat-msgs"></div>
-            <div class="chat-row">
+            <div id="emoji-panel" style="display:none;flex-wrap:wrap;gap:3px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;max-height:110px;overflow-y:auto"></div>
+            <div class="chat-row" style="align-items:center;gap:8px">
+              <button onclick="toggleEmoji()" style="background:transparent;border:1px solid var(--border);border-radius:8px;font-size:20px;padding:5px 8px;cursor:pointer;flex-shrink:0" onmouseover="this.style.borderColor='var(--em2)'" onmouseout="this.style.borderColor='var(--border)'">😊</button>
               <input class="chat-inp" id="chat-inp" placeholder="Escribe un mensaje al equipo..." maxlength="300"
                 onkeydown="if(event.key==='Enter')sendChat()">
               <button class="btn primary" onclick="sendChat()">Enviar</button>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="card" style="padding:16px">
-              <div class="card-title">Asistente IA 🤖</div>
-              <div id="ai-msgs" style="height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;padding:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent"></div>
-              <div style="display:flex;gap:8px">
-                <input class="chat-inp" id="ai-inp" placeholder="Pregunta algo al asistente..." maxlength="300"
-                  onkeydown="if(event.key==='Enter')sendAI()" style="font-size:12px">
-                <button class="btn primary btn-sm" onclick="sendAI()" id="ai-btn">→</button>
+            <div class="card" style="padding:20px;text-align:center;border:1px dashed var(--border2);background:var(--surface)">
+              <div style="font-size:40px;margin-bottom:12px">🤖</div>
+              <div style="font-family:var(--display,var(--mono));font-size:16px;font-weight:700;color:var(--em3);letter-spacing:2px;margin-bottom:8px">ASISTENTE IA</div>
+              <div style="display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:20px;padding:6px 16px;margin-bottom:12px">
+                <span style="font-size:14px">⏳</span>
+                <span style="font-size:13px;font-weight:600;color:var(--gold2);letter-spacing:1px">PRÓXIMAMENTE</span>
+              </div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.6">
+                El asistente inteligente de GEOTRACK estará disponible pronto.<br>
+                Podrás consultarle sobre proyectos, geomática y gestión de tiempo.
+              </div>
+              <div style="margin-top:14px;display:flex;justify-content:center;gap:6px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--em3);animation:pulse 1.5s infinite"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--em3);animation:pulse 1.5s 0.3s infinite"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--em3);animation:pulse 1.5s 0.6s infinite"></div>
               </div>
             </div>
             <div class="card" style="padding:14px">
@@ -610,6 +622,50 @@ select.filter-sel{
         <div class="card">
           <div class="card-title">Más noticias</div>
           <div id="news-list"></div>
+        </div>
+      </div>
+
+
+      <!-- JUEGO -->
+      <div class="page" id="page-juego">
+        <div class="sec-hdr">
+          <div class="sec-title">GeoBreak — Zona de Descanso</div>
+          <div class="sec-line"></div>
+          <span id="game-status" style="font-size:11px;color:var(--text3)">Presiona INICIO para jugar</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start">
+          <div>
+            <canvas id="game-canvas" width="360" height="600"
+              style="background:#0d1a10;border:1px solid var(--border);border-radius:var(--r);display:block;margin:0 auto;cursor:crosshair"></canvas>
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+              <button class="btn primary" id="btn-start" onclick="gameStart()">▶ Inicio</button>
+              <button class="btn" onclick="gamePause()">⏸ Pausa</button>
+            </div>
+            <div style="margin-top:10px;text-align:center;font-size:11px;color:var(--text3)">
+              🖱️ Mueve el cursor para apuntar · Clic para disparar · o usa ← → y Espacio
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card" style="padding:16px">
+              <div class="card-title">Mi puntaje</div>
+              <div style="font-size:36px;font-weight:700;color:var(--em3);font-family:var(--mono)" id="score-display">0</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">Nivel <span id="level-display">1</span> · Vidas <span id="lives-display">3</span></div>
+            </div>
+            <div class="card" style="padding:16px">
+              <div class="card-title">🏆 Ranking Equipo</div>
+              <div id="leaderboard" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+            <div class="card" style="padding:14px">
+              <div class="card-title">Instrucciones</div>
+              <div style="font-size:12px;color:var(--text2);line-height:1.7">
+                Coordenadas GPS caen desde arriba.<br>
+                Dispara para capturarlas antes de que lleguen al suelo.<br>
+                Cada coord vale <span style="color:var(--em3)">10 pts</span>.<br>
+                Las rojas valen <span style="color:#e07a5f">30 pts</span> pero son rápidas.<br>
+                Pierde una vida si llegan abajo.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -853,6 +909,7 @@ function navTo(page,btn){
   if(page==='timesheet'){ initTSFilter(); renderTS(); }
   if(page==='dashboard') renderDashboard();
   if(page==='carga'){ renderWorkload(); }
+  if(page==='juego'){ initGame(); loadLeaderboard(); }
 }
 
 // ── FOLDER ────────────────────────────────────────────────────────────────────
@@ -1362,6 +1419,347 @@ function showToast(msg){
   document.getElementById('toast-msg').textContent=msg;
   const t=document.getElementById('toast'); t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── EMOJI PICKER ──────────────────────────────────────────────────────────────
+const EMOJIS = [
+  '😊','😄','😂','🤣','😎','🥳','🎉','👏','🙌','💪',
+  '👍','👋','🤝','✅','❤️','🔥','⭐','💡','📌','📋',
+  '🗺️','🌍','🌿','🛰️','📐','📏','🔭','🏔️','🌊','🌳',
+  '⚠️','❌','✔️','🚀','💬','📊','📈','🖥️','💻','🔍',
+  '😅','🤔','😴','😤','🥱','😬','🤯','🥴','😵','🤩',
+  '☕','🍕','🎮','🏆','🥇','🎯','⏰','📅','🗓️','📁',
+];
+function toggleEmoji(){
+  const panel=document.getElementById('emoji-panel');
+  const open=panel.style.display==='flex';
+  if(!open){
+    if(!panel.children.length){
+      panel.innerHTML=EMOJIS.map(e=>
+        `<span onclick="insertEmoji('${e}')" style="font-size:22px;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-block;transition:background 0.1s" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background=''">${e}</span>`
+      ).join('');
+    }
+    panel.style.display='flex';
+  } else {
+    panel.style.display='none';
+  }
+}
+function insertEmoji(e){
+  const inp=document.getElementById('chat-inp');
+  const pos=inp.selectionStart!=null?inp.selectionStart:inp.value.length;
+  inp.value=inp.value.slice(0,pos)+e+inp.value.slice(pos);
+  inp.focus();
+  inp.selectionStart=inp.selectionEnd=pos+e.length;
+  document.getElementById('emoji-panel').style.display='none';
+}
+
+// ── GAME: GEOBREAK ────────────────────────────────────────────────────────────
+let gameState = null;
+
+function initGame(){
+  const canvas = document.getElementById('game-canvas');
+  if(!canvas) return;
+  if(!gameState) drawGameIdle(canvas);
+}
+
+function drawGameIdle(canvas){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  // Grid background
+  ctx.strokeStyle = 'rgba(78,203,160,0.08)';
+  ctx.lineWidth = 1;
+  for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+  for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+  // Title
+  ctx.fillStyle = 'rgba(78,203,160,0.6)';
+  ctx.font = 'bold 22px Consolas, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('GEOBREAK', W/2, H/2-40);
+  ctx.font = '13px Consolas, monospace';
+  ctx.fillStyle = 'rgba(78,203,160,0.4)';
+  ctx.fillText('Captura coordenadas GPS', W/2, H/2);
+  ctx.fillText('Presiona INICIO para jugar', W/2, H/2+30);
+  // Decorative coords
+  const demoCoords = ['S12.046°','W77.042°','S8.112°','W74.930°'];
+  ctx.font = '10px Consolas, monospace';
+  ctx.fillStyle = 'rgba(78,203,160,0.2)';
+  demoCoords.forEach((c,i)=>{
+    ctx.fillText(c, 40+Math.random()*280, 80+i*60+Math.random()*20);
+  });
+}
+
+function gameStart(){
+  const canvas = document.getElementById('game-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Game state
+  const GS = {
+    running: true, paused: false,
+    score: 0, lives: 3, level: 1, frameCount: 0,
+    coords: [], bullets: [], particles: [],
+    ship: { x: W/2, y: H-50, w: 28, h: 20 },
+    keys: {}, mouseX: W/2,
+    spawnRate: 120, // frames between spawns
+  };
+  gameState = GS;
+
+  document.getElementById('btn-start').textContent = '↺ Reiniciar';
+
+  // Coord templates (lat/lon of Peru sites)
+  const coordPool = [
+    'S12.046°','S8.112°','S16.398°','S13.532°','S6.770°',
+    'W77.042°','W74.930°','W71.537°','W72.890°','W79.844°',
+    'LAT:-9.19°','LON:-75.01°','UTM 18S','UTM 17S','WGS84',
+    'EPSG:4326','EPSG:32718','DATUM:WGS','GRS80','NAD83',
+  ];
+
+  function spawnCoord(){
+    const isRed = Math.random() < 0.2;
+    GS.coords.push({
+      x: 20 + Math.random()*(W-40),
+      y: -20,
+      vy: (0.8 + Math.random()*0.8 + GS.level*0.15) * (isRed?1.6:1),
+      text: coordPool[Math.floor(Math.random()*coordPool.length)],
+      color: isRed ? '#e07a5f' : '#4ecba0',
+      pts: isRed ? 30 : 10,
+      w: 72, h: 18,
+    });
+  }
+
+  function shoot(x){
+    GS.bullets.push({ x: GS.ship.x, y: GS.ship.y-10, vy:-9, r:4 });
+  }
+
+  // Input
+  const onKey = e => {
+    GS.keys[e.code] = e.type === 'keydown';
+    if(e.code==='Space' && e.type==='keydown'){ shoot(GS.ship.x); e.preventDefault(); }
+  };
+  const onMouse = e => {
+    const rect = canvas.getBoundingClientRect();
+    GS.mouseX = (e.clientX - rect.left) * (W / rect.width);
+  };
+  const onClick = e => { if(GS.running && !GS.paused) shoot(GS.ship.x); };
+
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('keyup', onKey);
+  canvas.addEventListener('mousemove', onMouse);
+  canvas.addEventListener('click', onClick);
+
+  function addParticles(x, y, color, n){
+    for(let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2;
+      const spd = 1+Math.random()*3;
+      GS.particles.push({ x, y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd, life:1, color, r:2+Math.random()*2 });
+    }
+  }
+
+  function updateScore(){
+    document.getElementById('score-display').textContent = GS.score;
+    document.getElementById('level-display').textContent = GS.level;
+    document.getElementById('lives-display').textContent = '❤️'.repeat(GS.lives);
+  }
+
+  function gameOver(){
+    GS.running = false;
+    document.removeEventListener('keydown', onKey);
+    document.removeEventListener('keyup', onKey);
+    canvas.removeEventListener('mousemove', onMouse);
+    canvas.removeEventListener('click', onClick);
+    // Draw game over
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#e07a5f';
+    ctx.font = 'bold 28px Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', W/2, H/2-30);
+    ctx.fillStyle = '#4ecba0';
+    ctx.font = '16px Consolas, monospace';
+    ctx.fillText('Puntaje: '+GS.score, W/2, H/2+10);
+    ctx.font = '13px Consolas, monospace';
+    ctx.fillStyle = 'rgba(78,203,160,0.5)';
+    ctx.fillText('Presiona INICIO para reiniciar', W/2, H/2+45);
+    // Save to leaderboard
+    saveScore(GS.score);
+    document.getElementById('btn-start').textContent = '▶ Inicio';
+    gameState = null;
+  }
+
+  let animId;
+  function loop(){
+    if(!GS.running){ cancelAnimationFrame(animId); return; }
+    if(GS.paused){ animId=requestAnimationFrame(loop); return; }
+    GS.frameCount++;
+
+    // Move ship
+    const spd = 5;
+    if(GS.keys['ArrowLeft']) GS.ship.x = Math.max(GS.ship.w/2, GS.ship.x-spd);
+    if(GS.keys['ArrowRight']) GS.ship.x = Math.min(W-GS.ship.w/2, GS.ship.x+spd);
+    // Mouse follow
+    GS.ship.x += (GS.mouseX - GS.ship.x) * 0.12;
+    GS.ship.x = Math.max(GS.ship.w/2, Math.min(W-GS.ship.w/2, GS.ship.x));
+
+    // Spawn
+    if(GS.frameCount % GS.spawnRate === 0) spawnCoord();
+
+    // Level up every 300 frames
+    if(GS.frameCount % 300 === 0){
+      GS.level++;
+      GS.spawnRate = Math.max(40, GS.spawnRate - 10);
+    }
+
+    // Move coords
+    GS.coords = GS.coords.filter(c=>{
+      c.y += c.vy;
+      if(c.y > H+10){
+        GS.lives--;
+        addParticles(c.x, H-10, '#e07a5f', 8);
+        if(GS.lives<=0){ gameOver(); return false; }
+        updateScore();
+        return false;
+      }
+      return true;
+    });
+
+    // Move bullets
+    GS.bullets = GS.bullets.filter(b=>{ b.y+=b.vy; return b.y>-10; });
+
+    // Collision
+    GS.bullets = GS.bullets.filter(b=>{
+      let hit=false;
+      GS.coords = GS.coords.filter(c=>{
+        if(!hit && Math.abs(b.x-c.x)<c.w/2 && Math.abs(b.y-c.y)<c.h){
+          hit=true; GS.score+=c.pts;
+          addParticles(c.x,c.y,c.color,12);
+          updateScore();
+          return false;
+        }
+        return true;
+      });
+      return !hit;
+    });
+
+    // Move particles
+    GS.particles = GS.particles.filter(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life-=0.04; return p.life>0;
+    });
+
+    // ── DRAW ──
+    ctx.clearRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle='rgba(78,203,160,0.06)';
+    ctx.lineWidth=1;
+    for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+    for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+
+    // Coords
+    GS.coords.forEach(c=>{
+      ctx.save();
+      ctx.strokeStyle=c.color+'88';
+      ctx.fillStyle=c.color+'22';
+      ctx.lineWidth=1;
+      const rx=c.x-c.w/2, ry=c.y-c.h/2;
+      ctx.beginPath();ctx.roundRect(rx,ry,c.w,c.h,4);
+      ctx.fill();ctx.stroke();
+      ctx.fillStyle=c.color;
+      ctx.font='10px Consolas,monospace';
+      ctx.textAlign='center';
+      ctx.fillText(c.text,c.x,c.y+4);
+      ctx.restore();
+    });
+
+    // Bullets
+    GS.bullets.forEach(b=>{
+      ctx.save();
+      ctx.fillStyle='#c9a84c';
+      ctx.shadowBlur=8;ctx.shadowColor='#c9a84c';
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+
+    // Particles
+    GS.particles.forEach(p=>{
+      ctx.save();
+      ctx.globalAlpha=p.life;
+      ctx.fillStyle=p.color;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+
+    // Ship (triangle)
+    ctx.save();
+    ctx.fillStyle='#4ecba0';
+    ctx.shadowBlur=12;ctx.shadowColor='#4ecba0';
+    ctx.beginPath();
+    ctx.moveTo(GS.ship.x, GS.ship.y-GS.ship.h/2);
+    ctx.lineTo(GS.ship.x-GS.ship.w/2, GS.ship.y+GS.ship.h/2);
+    ctx.lineTo(GS.ship.x+GS.ship.w/2, GS.ship.y+GS.ship.h/2);
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+
+    // HUD
+    ctx.fillStyle='rgba(78,203,160,0.5)';
+    ctx.font='11px Consolas,monospace';
+    ctx.textAlign='left';
+    ctx.fillText('NVL '+GS.level, 8, 18);
+    ctx.textAlign='right';
+    ctx.fillText('⬡ '+GS.score, W-8, 18);
+    // Lives bar
+    for(let i=0;i<GS.lives;i++){
+      ctx.fillStyle='#e07a5f';
+      ctx.fillRect(8+i*14,H-16,10,8);
+    }
+
+    animId = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function gamePause(){
+  if(!gameState) return;
+  gameState.paused = !gameState.paused;
+  document.getElementById('game-status').textContent = gameState.paused ? '⏸ Pausado' : 'En juego...';
+}
+
+async function saveScore(score){
+  if(!currentUser || score===0) return;
+  try {
+    const existing = await fbGet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'));
+    if(!existing || score > (existing.score||0)){
+      await fbSet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'), {
+        name: currentUser.name, score, ts: Date.now()
+      });
+    }
+    loadLeaderboard();
+  } catch(e){}
+}
+
+async function loadLeaderboard(){
+  const el = document.getElementById('leaderboard');
+  if(!el) return;
+  try {
+    const data = await fbGet('/leaderboard');
+    if(!data || typeof data!=='object'){
+      el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>';
+      return;
+    }
+    const scores = Object.values(data).sort((a,b)=>b.score-a.score).slice(0,5);
+    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+    el.innerHTML = scores.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px">${medals[i]}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.name}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--em3)">${s.score}</div>
+      </div>`).join('');
+  } catch(e){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>';
+  }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
