@@ -713,8 +713,14 @@ let currentUser = null, projects = [], activeIdx = null, sessionStart = null, is
 
 const gs  = (k,d) => { try { const v=localStorage.getItem('gt2_'+k); return v?JSON.parse(v):d; } catch(e){return d;} };
 const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); } catch(e){} };
-const gg  = u  => gs('grid_'+u, {});
-const sg  = (u,g) => ss('grid_'+u, g);
+async function gg(u){
+  const data = await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
+  return (data && typeof data==='object') ? data : gs('grid_'+u,{});
+}
+async function sg(u,g){
+  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'), g);
+  ss('grid_'+u, g); // local backup
+}
 
 // ── PARTICLES ─────────────────────────────────────────────────────────────────
 (function initParticles(){
@@ -773,7 +779,8 @@ async function finishLogin(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='grid';
     document.getElementById('h-user').textContent=currentUser.name;
-    projects=gs('projects',[]);
+    const fbProjs = await fbGet('/projects');
+  projects = (fbProjs && Array.isArray(fbProjs)) ? fbProjs : gs('projects',[]);
     try{ await setOnline(); }catch(e){}
     initTSFilter();
     try{ await renderAll(); }catch(e){ console.error('renderAll',e); }
@@ -863,12 +870,12 @@ async function selectFolder(){
   }catch(e){ if(e.name!=='AbortError') showToast('Error al leer carpeta'); }
 }
 
-function addProjManual(){
+async function addProjManual(){
   const v=document.getElementById('new-proj-inp').value.trim();
   if(!v) return;
   if(!projects.find(p=>p.code===v)){
     projects.push({code:v,color:PROJ_COLORS[projects.length%PROJ_COLORS.length]});
-    ss('projects',projects);
+    await fbSet('/projects', projects); ss('projects',projects);
   }
   document.getElementById('add-proj-modal').classList.remove('open');
   document.getElementById('new-proj-inp').value='';
@@ -883,7 +890,7 @@ async function activateProj(i){
   if(activeIdx!==null&&sessionStart) closeSession();
   activeIdx=i; isPaused=false; sessionStart=Date.now();
   const day=getCurDay(), hr=getCurHour();
-  if(day&&hr){ const g=gg(currentUser.name); if(!g[day])g[day]={}; g[day][hr]=projects[i].code; sg(currentUser.name,g); addActivity(projects[i].code,day,hr); }
+  if(day&&hr){ const g=await gg(currentUser.name); if(!g[day])g[day]={}; g[day][hr]=projects[i].code; sg(currentUser.name,g); addActivity(projects[i].code,day,hr); }
   setOnline();
   document.getElementById('rp-proj').textContent=projects[i].code;
   document.getElementById('btn-pause').textContent='⏸ Pausar';
@@ -907,8 +914,10 @@ function togglePause(){
   if(!isPaused){ closeSession(); isPaused=true; btn.textContent='▶ Reanudar'; document.getElementById('rp-timer').textContent='--:--:--'; }
   else{ isPaused=false; sessionStart=Date.now(); btn.textContent='⏸ Pausar'; }
 }
-function addActivity(code,day,hr){
-  const a=gs('activity',[]); a.unshift({user:currentUser.name,code,day,hr,ts:new Date().toLocaleTimeString('es-PE',{hour12:false})});
+async function addActivity(code,day,hr){
+  const msg={user:currentUser.name,code,day,hr,ts:new Date().toLocaleTimeString('es-PE',{hour12:false}),id:Date.now()};
+  await fbPush('/activity', msg);
+  const a=gs('activity',[]); a.unshift(msg);
   if(a.length>30) a.splice(30); ss('activity',a);
 }
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
@@ -938,9 +947,9 @@ function initTSFilter(){
   const names=[currentUser?.name||'',...TEAM.map(u=>u.name).filter(n=>n!==currentUser?.name)];
   sel.innerHTML=names.map(n=>`<option value="${n}">${n}</option>`).join('');
 }
-function renderTS(){
+async function renderTS(){
   const user=document.getElementById('ts-filter')?.value||(currentUser?.name||'');
-  const g=gg(user);
+  const g=await gg(user);
   const t=document.getElementById('ts-table');
   let h='<thead><tr><th class="day-h">DÍA</th>';
   HOURS.forEach(hr=>{ h+=`<th style="font-size:11px">${hr}</th>`; });
@@ -958,20 +967,20 @@ function renderTS(){
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
-function openModal(day,hr,user){
+async function openModal(day,hr,user){
   editCell={day,hr,user};
   document.getElementById('modal-desc').textContent=`${user} · ${day} · ${hr}`;
-  const g=gg(user); document.getElementById('modal-inp').value=g[day]&&g[day][hr]?g[day][hr]:'';
+  const g=await gg(user); document.getElementById('modal-inp').value=g[day]&&g[day][hr]?g[day][hr]:'';
   document.getElementById('modal-sugg').innerHTML=projects.slice(0,8).map(p=>`<span class="sugg-chip" onclick="document.getElementById('modal-inp').value='${p.code}'">${p.code.substring(0,18)}</span>`).join('');
   document.getElementById('cell-modal').classList.add('open');
   setTimeout(()=>document.getElementById('modal-inp').focus(),100);
 }
 function closeModal(){ document.getElementById('cell-modal').classList.remove('open'); editCell=null; }
-function saveModal(){
+async function saveModal(){
   if(!editCell) return;
   const v=document.getElementById('modal-inp').value.trim();
   const {day,hr,user}=editCell;
-  const g=gg(user); if(!g[day])g[day]={};
+  const g=await gg(user); if(!g[day])g[day]={};
   if(v) g[day][hr]=v; else delete g[day][hr];
   sg(user,g); renderTS(); updateStats(); closeModal();
 }
@@ -994,7 +1003,10 @@ async function renderDashboard(){
       ${on&&on.proj?`<div class="m-proj">${on.proj.substring(0,18)}…</div>`:''}
     </div>`;
   }).join('');
-  const acts=gs('activity',[]);
+  let acts=[];
+  const fbActs=await fbGet('/activity');
+  if(fbActs && typeof fbActs==='object') acts=Object.values(fbActs).sort((a,b)=>(b.id||0)-(a.id||0));
+  else acts=gs('activity',[]);
   const ra=document.getElementById('recent-acts');
   if(!acts.length){ ra.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px">Sin actividad registrada aún</div>'; return; }
   ra.innerHTML=acts.slice(0,6).map(a=>{
@@ -1010,7 +1022,7 @@ async function renderDashboard(){
 // ── STATS ─────────────────────────────────────────────────────────────────────
 async function updateStats(){
   if(!currentUser) return;
-  const today=getCurDay(), g=gg(currentUser.name);
+  const today=getCurDay(), g=await gg(currentUser.name);
   let th=0,wh=0; const pset=new Set();
   DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v){wh++;pset.add(v);if(day===today)th++;} }); });
   document.getElementById('s-today').textContent=th;
@@ -1019,13 +1031,13 @@ async function updateStats(){
   document.getElementById('s-online').textContent=(await getOnline()).length;
   renderMiniLog();
 }
-function renderStats(){
+async function renderStats(){
   let total=0; const pm={}, pp={};
   TEAM.forEach(u=>{ pp[u.name]=0; });
-  TEAM.forEach(u=>{
-    const g=gg(u.name);
+  for(const u of TEAM){
+    const g=await gg(u.name);
     DAYS.forEach(day=>{ if(!g[day])return; Object.entries(g[day]).forEach(([,v])=>{ if(v){total++;pp[u.name]=(pp[u.name]||0)+1;pm[v]=(pm[v]||0)+1;} }); });
-  });
+  }
   document.getElementById('es-total').textContent=total+'h';
   const tpj=Object.entries(pm).sort((a,b)=>b[1]-a[1])[0];
   const tpe=Object.entries(pp).sort((a,b)=>b[1]-a[1])[0];
@@ -1041,10 +1053,10 @@ function renderStats(){
 }
 
 // ── PROJECTS PAGE ──────────────────────────────────────────────────────────────
-function renderProjects(){
+async function renderProjects(){
   const pm={};
   projects.forEach(p=>{ pm[p.code]=0; });
-  TEAM.forEach(u=>{ const g=gg(u.name); DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v&&pm[v]!==undefined)pm[v]++; }); }); });
+  for(const u of TEAM){ const g=await gg(u.name); DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v&&pm[v]!==undefined)pm[v]++; }); }); }
   const max=Math.max(1,...Object.values(pm));
   document.getElementById('proj-bars').innerHTML=projects.length?projects.map((p,i)=>`
     <div class="bar-row"><div class="bar-lbl" style="color:${p.color}">${p.code.substring(0,22)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((pm[p.code]||0)/max*100)}%;background:linear-gradient(to right,${p.color}88,${p.color})"></div></div><div class="bar-val">${pm[p.code]||0}h</div></div>`).join('')
@@ -1228,11 +1240,12 @@ function loadNews(){
 }
 
 // ── WORKLOAD ──────────────────────────────────────────────────────────────────
-function renderWorkload(){
+async function renderWorkload(){
   document.getElementById('carga-week').textContent=getWeekLabel();
   const MAX_HOURS=50;
-  const teamData=TEAM.map(u=>{
-    const g=gg(u.name);
+  const teamDataArr=[];
+  for(const u of TEAM){
+    const g=await gg(u.name);
     let total=0; const projMap={};
     DAYS.forEach(day=>{
       if(!g[day]) return;
@@ -1240,8 +1253,9 @@ function renderWorkload(){
         if(v){ total++; projMap[v]=(projMap[v]||0)+1; }
       });
     });
-    return {...u, total, projMap};
-  });
+    teamDataArr.push({...u, total, projMap});
+  }
+  const teamData=teamDataArr;
 
   const maxH=Math.max(1,...teamData.map(u=>u.total));
 
@@ -1277,7 +1291,7 @@ function renderWorkload(){
   }).join('');
 
   // Comparative bar chart
-  document.getElementById('carga-bars').innerHTML=teamData.sort((a,b)=>b.total-a.total).map(u=>`
+  document.getElementById('carga-bars').innerHTML=[...teamData].sort((a,b)=>b.total-a.total).map(u=>`
     <div class="bar-row">
       <div class="bar-lbl" style="display:flex;align-items:center;gap:8px">
         <div style="width:22px;height:22px;border-radius:50%;background:${u.color}22;border:2px solid ${u.color};color:${u.color};font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${u.init}</div>
@@ -1321,16 +1335,16 @@ function renderWorkload(){
 }
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
-function copyTimesheet(){
+async function copyTimesheet(){
   if(!currentUser) return;
-  const g=gg(currentUser.name);
+  const g=await gg(currentUser.name);
   let tsv='DÍA\t'+HOURS.join('\t')+'\n';
   DAYS.forEach(day=>{ tsv+=day; HOURS.forEach(h=>{ tsv+='\t'+(g[day]&&g[day][h]?g[day][h]:''); }); tsv+='\n'; });
   navigator.clipboard.writeText(tsv).then(()=>showToast('Tabla copiada → pega en Excel con Ctrl+V'));
 }
-function exportCSV(){
+async function exportCSV(){
   if(!currentUser) return;
-  const g=gg(currentUser.name);
+  const g=await gg(currentUser.name);
   let csv='DÍA,'+HOURS.join(',')+'\n';
   DAYS.forEach(day=>{ csv+=day; HOURS.forEach(h=>{ csv+=','+(g[day]&&g[day][h]?'"'+g[day][h]+'"':''); }); csv+='\n'; });
   const a=document.createElement('a');
@@ -1338,9 +1352,9 @@ function exportCSV(){
   a.download='timesheet_'+currentUser.name.replace(' ','_')+'.csv';
   a.click(); showToast('CSV exportado');
 }
-function clearSheet(){
+async function clearSheet(){
   if(!currentUser||!confirm('¿Limpiar tu timesheet de esta semana?')) return;
-  sg(currentUser.name,{}); renderTS(); updateStats(); showToast('Timesheet limpiado');
+  await sg(currentUser.name,{}); renderTS(); updateStats(); showToast('Timesheet limpiado');
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
