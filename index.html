@@ -738,22 +738,27 @@ const sg  = (u,g) => ss('grid_'+u, g);
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function initLogin(){ /* buttons are static HTML */ }
-function loginIdx(i){ currentUser={...TEAM[i]}; finishLogin(); }
+function loginIdx(i){ currentUser={...TEAM[i]}; finishLogin().catch(e=>{ console.error(e); alert('Error: '+e.message); }); }
 function loginCustom(){
   const n=document.getElementById('login-inp').value.trim();
   if(!n){ showToast('Ingresa tu nombre'); return; }
   currentUser={name:n,role:'Operador',color:'#4ecba0',init:n.substring(0,2).toUpperCase()};
   finishLogin();
 }
-function finishLogin(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='grid';
-  document.getElementById('h-user').textContent=currentUser.name;
-  projects=gs('projects',[]);
-  setOnline();
-  initTSFilter();
-  renderAll();
-  try{ loadNews(); }catch(e){}
+async function finishLogin(){
+  try {
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='grid';
+    document.getElementById('h-user').textContent=currentUser.name;
+    projects=gs('projects',[]);
+    try{ await setOnline(); }catch(e){}
+    initTSFilter();
+    try{ await renderAll(); }catch(e){ console.error('renderAll',e); }
+    try{ loadNews(); }catch(e){}
+  } catch(err){
+    console.error('finishLogin error:',err);
+    alert('Error al iniciar: '+err.message);
+  }
 }
 function showLogin(){
   if(activeIdx!==null&&sessionStart) closeSession();
@@ -849,7 +854,7 @@ function addProjManual(){
 function openAddProj(){ document.getElementById('add-proj-modal').classList.add('open'); setTimeout(()=>document.getElementById('new-proj-inp').focus(),100); }
 
 // ── PROJECT ACTIVATION ────────────────────────────────────────────────────────
-function activateProj(i){
+async function activateProj(i){
   if(!currentUser) return;
   if(activeIdx===i&&!isPaused) return;
   if(activeIdx!==null&&sessionStart) closeSession();
@@ -1069,7 +1074,7 @@ async function sendChat(){
   }
   await renderChat();
 }
-function renderChatMembers(){
+async function renderChatMembers(){
   const online=await getOnline();
   const el=document.getElementById('chat-members');
   if(!el) return;
