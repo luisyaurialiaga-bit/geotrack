@@ -414,7 +414,28 @@ select.filter-sel{
     </div>
     <div class="login-box">
       <div class="login-lbl">Seleccionar operador</div>
-      <div class="users-list" id="users-list"></div>
+      <div class="users-list" id="users-list">
+        <div class="ucard" onclick="loginIdx(0)">
+          <div class="uc-av" style="background:#4ecba022;border-color:#4ecba0;color:#4ecba0">JY</div>
+          <div><div class="uc-name">Jose Yauri</div><div class="uc-role">Ing. Geógrafo · Geomática</div></div>
+        </div>
+        <div class="ucard" onclick="loginIdx(1)">
+          <div class="uc-av" style="background:#6db8e822;border-color:#6db8e8;color:#6db8e8">ES</div>
+          <div><div class="uc-name">Elsa Sanez</div><div class="uc-role">Geógrafa · Geomática</div></div>
+        </div>
+        <div class="ucard" onclick="loginIdx(2)">
+          <div class="uc-av" style="background:#c9a84c22;border-color:#c9a84c;color:#c9a84c">KG</div>
+          <div><div class="uc-name">Katherine Gabriel</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
+        </div>
+        <div class="ucard" onclick="loginIdx(3)">
+          <div class="uc-av" style="background:#e07a5f22;border-color:#e07a5f;color:#e07a5f">JR</div>
+          <div><div class="uc-name">Jhojan Rivera</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
+        </div>
+        <div class="ucard" onclick="loginIdx(4)">
+          <div class="uc-av" style="background:#9b89c422;border-color:#9b89c4;color:#9b89c4">DD</div>
+          <div><div class="uc-name">Daniel Dávila</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
+        </div>
+      </div>
       <div class="login-or">o ingresa tu nombre</div>
       <input class="login-inp" id="login-inp" placeholder="Nombre completo..." maxlength="40"
         onkeydown="if(event.key==='Enter')loginCustom()">
@@ -716,13 +737,7 @@ const sg  = (u,g) => ss('grid_'+u, g);
 })();
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
-function initLogin(){
-  document.getElementById('users-list').innerHTML = TEAM.map((u,i)=>`
-    <div class="ucard" data-i="${i}" onclick="loginIdx(${i})">
-      <div class="uc-av" style="background:${u.color}22;border-color:${u.color};color:${u.color}">${u.init}</div>
-      <div><div class="uc-name">${u.name}</div><div class="uc-role">${u.role}</div></div>
-    </div>`).join('');
-}
+function initLogin(){ /* buttons are static HTML */ }
 function loginIdx(i){ currentUser={...TEAM[i]}; finishLogin(); }
 function loginCustom(){
   const n=document.getElementById('login-inp').value.trim();
