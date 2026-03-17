@@ -471,7 +471,8 @@ select.filter-sel{
       <div id="h-date"></div>
     </div>
     <div class="hdr-right">
-      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Alertas cada hora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative">&#128276;<div id="notif-badge" style="display:none;position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--em3);border:2px solid var(--bg2)"></div></button>
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Alertas cada hora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative">&#128276;</button>
+      <button onclick="fireAllAlerts(new Date().getHours())" title="Probar alerta ahora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text3)" onmouseover="this.style.borderColor='var(--em2)';this.style.color='var(--em3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">&#9654;</button>
       <div class="user-chip" onclick="showLogin()">
         <div class="chip-dot"></div>
         <span id="h-user">—</span>
@@ -1269,45 +1270,92 @@ async function sendAI(){
 function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── NEWS ──────────────────────────────────────────────────────────────────────
-const NEWS=[
-  {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'🤖',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: nuevas capacidades de análisis y razonamiento espacial para proyectos ambientales',date:'Mar 2025',url:'https://www.anthropic.com/news'},
-  {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3 — nuevas herramientas de análisis geoespacial potenciadas con inteligencia artificial',date:'Feb 2025',url:'https://www.esri.com/arcgis-blog'},
-  {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Nuevos datasets Landsat 9 disponibles para monitoreo ambiental y cobertura vegetal en Sudamérica',date:'Mar 2025',url:'https://earthdata.nasa.gov'},
-  {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'🌿',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para estudios de impacto ambiental utilizando tecnología SIG y teledetección',date:'Mar 2025',url:'https://www.gob.pe/minam'},
-  {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',title:'QGIS 3.36 Maidenhead — mejoras de rendimiento y nuevos plugins de análisis espacial',date:'Feb 2025',url:'https://qgis.org'},
-  {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',title:'Sentinel-2 colecciones actualizadas con cobertura completa para Perú y Latinoamérica',date:'Mar 2025',url:'https://earthengine.google.com'},
-  {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'📍',title:'Actualización de datos cartográficos para Lima Metropolitana y regiones mineras completada',date:'Feb 2025',url:'https://www.openstreetmap.org'},
-  {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'🤖',title:'Constitutional AI: construyendo sistemas de IA seguros para aplicaciones críticas en medio ambiente',date:'Ene 2025',url:'https://www.anthropic.com/research'},
+const NEWS_ALL=[
+  // Lunes
+  [
+    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: razonamiento espacial avanzado para proyectos ambientales',date:'2025',url:'https://www.anthropic.com/news'},
+    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Landsat 9 — nuevos datasets para monitoreo de cobertura vegetal en Sudamérica',date:'2025',url:'https://earthdata.nasa.gov'},
+    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'QGIS 3.36 — mejoras de rendimiento y nuevos plugins de análisis espacial',date:'2025',url:'https://qgis.org'},
+    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para EIA utilizando tecnología SIG y teledetección',date:'2025',url:'https://www.gob.pe/minam'},
+  ],
+  // Martes
+  [
+    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3 — herramientas de análisis geoespacial con inteligencia artificial',date:'2025',url:'https://www.esri.com/arcgis-blog'},
+    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Sentinel-2 actualizado con cobertura completa para Perú y Latinoamérica',date:'2025',url:'https://earthengine.google.com'},
+    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Constitutional AI: sistemas seguros para aplicaciones críticas en medio ambiente',date:'2025',url:'https://www.anthropic.com/research'},
+    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Actualización de datos cartográficos para Lima Metropolitana y zonas mineras',date:'2025',url:'https://www.openstreetmap.org'},
+  ],
+  // Miércoles
+  [
+    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'MODIS Terra — análisis de cambio de uso de suelo en cuencas andinas',date:'2025',url:'https://earthdata.nasa.gov'},
+    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'SEIA digital: modernización del sistema de evaluación de impacto ambiental',date:'2025',url:'https://www.gob.pe/minam'},
+    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Modelos de IA para detección de cambios en imágenes satelitales',date:'2025',url:'https://www.anthropic.com/news'},
+    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Story Maps para comunicar estudios de impacto ambiental al público',date:'2025',url:'https://www.esri.com'},
+  ],
+  // Jueves
+  [
+    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Análisis de deforestación en la Amazonía con machine learning y GEE',date:'2025',url:'https://earthengine.google.com'},
+    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Plugin QGIS para generación automática de mapas de vulnerabilidad ambiental',date:'2025',url:'https://qgis.org'},
+    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'LLMs aplicados a la interpretación de normativa ambiental peruana',date:'2025',url:'https://www.anthropic.com/research'},
+    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Mapeo colaborativo de áreas naturales protegidas en Perú con OSM',date:'2025',url:'https://www.openstreetmap.org'},
+  ],
+  // Viernes
+  [
+    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Inventario nacional de glaciares: avances con teledetección y SIG',date:'2025',url:'https://www.gob.pe/minam'},
+    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Automatización de informes ambientales con modelos de lenguaje',date:'2025',url:'https://www.anthropic.com/news'},
+    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'SAR Sentinel-1 para mapeo de inundaciones en zonas costeras peruanas',date:'2025',url:'https://earthdata.nasa.gov'},
+    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Dashboards ambientales en tiempo real con ArcGIS Online',date:'2025',url:'https://www.esri.com'},
+  ],
+  // Sábado
+  [
+    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Tutorial: monitoreo de calidad del agua con índices espectrales en GEE',date:'2025',url:'https://earthengine.google.com'},
+    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Automatización de cartografía temática con PyQGIS y modelos de procesamiento',date:'2025',url:'https://qgis.org'},
+    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Interpretabilidad en IA: avances para aplicaciones críticas en ciencias ambientales',date:'2025',url:'https://www.anthropic.com/research'},
+    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Humanitario OSM: cartografía de zonas de riesgo en ciudades andinas',date:'2025',url:'https://www.openstreetmap.org'},
+  ],
+  // Domingo
+  [
+    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Imágenes VIIRS de incendios forestales activos en América del Sur',date:'2025',url:'https://earthdata.nasa.gov'},
+    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Programa nacional de reforestación: avances 2025 con monitoreo satelital',date:'2025',url:'https://www.gob.pe/minam'},
+    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'IA en gestión ambiental: casos de éxito en Latinoamérica',date:'2025',url:'https://www.anthropic.com/news'},
+    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Field Maps para trabajo de campo en estudios de impacto ambiental',date:'2025',url:'https://www.esri.com'},
+  ],
 ];
 
+
 function loadNews(){
-  const grid=document.getElementById('news-grid');
-  const list=document.getElementById('news-list');
-  grid.innerHTML='<div class="news-loading" style="grid-column:span 2">🌿 Cargando noticias...</div>';
-  setTimeout(()=>{
-    const featured=NEWS.slice(0,4);
-    const rest=NEWS.slice(4);
-    grid.innerHTML=featured.map(n=>`
-      <div class="news-card" onclick="window.open('${n.url}','_blank')">
-        ${n.img
-          ? `<img src="${n.img}" class="news-img" alt="${n.src}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
-        <div class="news-img-placeholder" style="${n.img?'display:none':'display:flex'}">${n.icon}</div>
-        <div class="news-body">
-          <div class="news-tag" style="background:${n.tagColor}22;color:${n.tagColor};border:1px solid ${n.tagColor}44">${n.tag}</div>
-          <div class="news-h">${n.title}</div>
-          <div class="news-meta">
-            <span class="news-src2">${n.src}</span>
-            <span class="news-dt">${n.date}</span>
-          </div>
-        </div>
-      </div>`).join('');
-    list.innerHTML=rest.map(n=>`
-      <div class="news-list-item" onclick="window.open('${n.url}','_blank')">
-        <div class="news-list-icon" style="background:${n.tagColor}22;color:${n.tagColor}">${n.icon}</div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.4">${n.title}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${n.src} · ${n.date}</div></div>
-      </div>`).join('');
-  },500);
+  var grid=document.getElementById('news-grid');
+  var list=document.getElementById('news-list');
+  if(!grid||!list) return;
+  grid.innerHTML='<div style="padding:20px;color:var(--text3);grid-column:span 2">Cargando...</div>';
+  var dayIdx=new Date().getDay();
+  var NEWS=NEWS_ALL[dayIdx]||NEWS_ALL[0];
+  var days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  setTimeout(function(){
+    var html='';
+    for(var i=0;i<NEWS.length;i++){
+      var n=NEWS[i];
+      var imgHtml='';
+      if(n.img){
+        imgHtml='<img src="'+n.img+'" class="news-img" onerror="this.style.display='none'">';
+      } else {
+        imgHtml='<div class="news-img-placeholder">'+n.icon+'</div>';
+      }
+      html+='<div class="news-card" data-url="'+n.url+'">';
+      html+=imgHtml;
+      html+='<div class="news-body">';
+      html+='<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.tag+'</div>';
+      html+='<div class="news-h">'+n.title+'</div>';
+      html+='<div class="news-meta"><span class="news-src2">'+n.src+'</span><span class="news-dt">'+days[dayIdx]+'</span></div>';
+      html+='</div></div>';
+    }
+    grid.innerHTML=html;
+    list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px 0">Noticias rotadas cada dia de la semana</div>';
+    // Add click handlers after render
+    grid.querySelectorAll('.news-card').forEach(function(card){
+      card.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+    });
+  },400);
 }
 
 // ── WORKLOAD ──────────────────────────────────────────────────────────────────
@@ -1555,6 +1603,7 @@ function gameStart(){
 
   function shoot(x){
     GS.bullets.push({ x: GS.ship.x, y: GS.ship.y-10, vy:-9, r:4 });
+    playLaser();
   }
 
   // Input
@@ -1585,6 +1634,35 @@ function gameStart(){
     document.getElementById('score-display').textContent = GS.score;
     document.getElementById('level-display').textContent = GS.level;
     document.getElementById('lives-display').textContent = '❤️'.repeat(GS.lives);
+  }
+
+  function playLaser(){
+    try{
+      var ac=new(window.AudioContext||window.webkitAudioContext)();
+      var o=ac.createOscillator(), g=ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type='sawtooth'; o.frequency.setValueAtTime(880,ac.currentTime);
+      o.frequency.exponentialRampToValueAtTime(220,ac.currentTime+0.12);
+      g.gain.setValueAtTime(0.15,ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);
+      o.start(ac.currentTime); o.stop(ac.currentTime+0.13);
+    }catch(e){}
+  }
+  function playExplosion(pts){
+    try{
+      var ac=new(window.AudioContext||window.webkitAudioContext)();
+      var buf=ac.createBuffer(1,ac.sampleRate*0.3,ac.sampleRate);
+      var data=buf.getChannelData(0);
+      for(var i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5);
+      var src=ac.createBufferSource(), g=ac.createGain(), filt=ac.createBiquadFilter();
+      src.buffer=buf; filt.type='bandpass';
+      filt.frequency.value = pts>=30 ? 180 : 280;
+      filt.Q.value=0.8;
+      src.connect(filt); filt.connect(g); g.connect(ac.destination);
+      g.gain.setValueAtTime(pts>=30?0.4:0.25, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+0.3);
+      src.start(ac.currentTime); src.stop(ac.currentTime+0.3);
+    }catch(e){}
   }
 
   function gameOver(){
