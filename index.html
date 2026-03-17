@@ -399,135 +399,22 @@ select.filter-sel{
 .toast.show{opacity:1}
 .toast-icon{font-size:16px}
 
-/* ── RESPONSIVE MOBILE ──────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  #app { grid-template-rows: 52px 1fr; }
+#notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
+#notif-banner.show{transform:translateX(-50%) translateY(0);pointer-events:auto;animation:bPulse 2s ease-in-out 3}
+@keyframes bPulse{0%,100%{border-color:var(--em)}50%{border-color:var(--em3);box-shadow:0 8px 32px rgba(78,203,160,0.2)}}
+.nb-icon{font-size:26px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px;transition:color 0.15s}.nb-close:hover{color:var(--text)}
 
-  /* Header compact */
-  header { padding: 0 12px; }
-  .brand-name { font-size: 14px; }
-  .brand-sub { display: none; }
-  #h-clock { font-size: 16px; letter-spacing: 1px; }
-  #h-date { display: none; }
-  .hdr-btn { display: none; }
-
-  /* Workspace: stack vertically, bottom nav */
-  .workspace {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: 1fr 56px;
-    position: relative;
-  }
-
-  /* Sidenav becomes bottom bar */
-  nav.sidenav {
-    order: 2;
-    flex-direction: row !important;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 8px !important;
-    border-right: none !important;
-    border-top: 1px solid var(--border);
-    width: 100%;
-    height: 56px;
-    overflow-x: auto;
-  }
-  .nb { width: 44px; height: 44px; }
-  .nb .tip { display: none; }
-  .nav-div { display: none; }
-
-  /* Right panel hidden on mobile, shown as overlay */
-  .right-panel {
-    display: none;
-    position: fixed;
-    bottom: 56px; right: 0; left: 0;
-    z-index: 20;
-    max-height: 60vh;
-    border-top: 1px solid var(--border2);
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
-  }
-  .right-panel.open { display: flex; }
-
-  /* FAB button for timer */
-  #fab-timer {
-    display: flex !important;
-    position: fixed;
-    bottom: 68px; right: 16px;
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: var(--em);
-    border: none;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 4px 16px rgba(78,203,160,0.4);
-    z-index: 21;
-    transition: transform 0.2s;
-  }
-  #fab-timer:active { transform: scale(0.92); }
-
-  /* Main panel full width */
-  .main-panel { order: 1; padding: 14px; overflow-y: auto; }
-
-  /* Stats grid 2 cols on mobile */
-  .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-
-  /* Team grid 2 cols */
-  .team-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-
-  /* Timesheet scroll */
-  .ts-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-  /* Chat layout single col */
-  #page-chat > div > div[style*="grid"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* News grid single col */
-  #news-grid { grid-template-columns: 1fr !important; }
-
-  /* Game canvas smaller */
-  #game-canvas { width: 100% !important; height: auto !important; }
-
-  /* Workload cards */
-  #carga-cards { grid-template-columns: 1fr !important; }
-
-  /* Login wider */
-  .login-wrap { width: 95vw !important; }
-
-  /* Section header wrap */
-  .sec-hdr { flex-wrap: wrap; gap: 8px; }
-}
-
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
-  .stat-num { font-size: 22px !important; }
-  .card { padding: 14px; }
-  .sec-title { font-size: 14px; }
-}
-
-/* NOTIFICATION BELL */
-.notif-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: transparent; border: 1px solid var(--border);
-  cursor: pointer; display: flex; align-items: center;
-  justify-content: center; font-size: 16px; transition: all 0.2s;
-  position: relative;
-}
-.notif-btn:hover { border-color: var(--em2); background: var(--em-glow); }
-.notif-btn.active { border-color: var(--em); background: var(--em-glow); }
-.notif-badge {
-  position: absolute; top: -3px; right: -3px;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--em3); border: 2px solid var(--bg2);
-  display: none;
-}
-.notif-btn.active .notif-badge { display: block; animation: pulse 2s infinite; }
+#notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
+#notif-banner.show{transform:translateX(-50%) translateY(0);pointer-events:auto;animation:bPulse 2s ease-in-out 3}
+@keyframes bPulse{0%,100%{border-color:var(--em)}50%{border-color:var(--em3);box-shadow:0 8px 32px rgba(78,203,160,0.2)}}
+.nb-icon{font-size:26px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px}.nb-close:hover{color:var(--text)}
 </style>
 </head>
 <body>
 
-<canvas id="canvas-bg"></canvas>
+<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Hora de actualizar tu timesheet</div><div class="nb-msg" id="nb-msg">Ya registraste tu proyecto activo?</div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
+<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Hora de actualizar</div><div class="nb-msg" id="nb-msg">Registra tu proyecto activo</div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
+<canvas id="canvas-bg" ></canvas>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -571,8 +458,6 @@ select.filter-sel{
 
 <!-- APP -->
 <div id="app" style="display:none">
-  <!-- FAB timer for mobile -->
-  <button id="fab-timer" style="display:none" onclick="toggleRightPanel()" title="Proyecto activo">⏱</button>
   <header>
     <div class="brand">
       <div class="brand-icon">🌿</div>
@@ -586,10 +471,7 @@ select.filter-sel{
       <div id="h-date"></div>
     </div>
     <div class="hdr-right">
-      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Notificaciones cada hora">
-        🔔
-        <div class="notif-badge"></div>
-      </button>
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Alertas cada hora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative">&#128276;<div id="notif-badge" style="display:none;position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--em3);border:2px solid var(--bg2)"></div></button>
       <div class="user-chip" onclick="showLogin()">
         <div class="chip-dot"></div>
         <span id="h-user">—</span>
@@ -814,20 +696,11 @@ select.filter-sel{
           <button class="btn primary" style="flex:1;font-size:12px" id="btn-pause" onclick="togglePause()">⏸ Pausar</button>
         </div>
       </div>
-      <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none;display:flex;flex-direction:column;gap:8px">
+      <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none">
         <div class="rp-lbl">Seleccionar proyecto</div>
-        <div style="position:relative">
-          <input id="proj-search" type="text" placeholder="🔍 Buscar proyecto..."
-            oninput="filterProjects(this.value)"
-            style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;
-            color:var(--text);font-size:12px;padding:8px 12px 8px 12px;outline:none;font-family:var(--mono);
-            transition:border-color 0.2s;"
-            onfocus="this.style.borderColor='var(--em2)'"
-            onblur="this.style.borderColor='var(--border)'">
-        </div>
-        <div id="rp-projs" style="flex:1;overflow-y:auto"></div>
-        <button class="btn sm" style="width:100%" onclick="selectFolder()">📂 Cargar carpeta</button>
-        <button class="btn sm" style="width:100%;margin-top:4px" onclick="openAddProj()">+ Agregar manual</button>
+        <div id="rp-projs"></div>
+        <button class="btn sm" style="width:100%;margin-top:8px" onclick="selectFolder()">📂 Cargar carpeta</button>
+        <button class="btn sm" style="width:100%;margin-top:6px" onclick="openAddProj()">+ Agregar manual</button>
       </div>
       <div style="border-top:1px solid var(--border);padding:12px 14px">
         <div class="rp-lbl" style="margin-bottom:8px">Log de hoy</div>
@@ -869,41 +742,29 @@ select.filter-sel{
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 const FB = 'https://geotrack-fcisa-default-rtdb.firebaseio.com';
 const FB_H = {'Content-Type':'application/json'};
-let fbOnline = true;
 
-async function fbFetch(url, opts, retries=2){
-  for(let i=0;i<=retries;i++){
-    try{
-      const r = await Promise.race([
-        fetch(url, opts),
-        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))
-      ]);
-      fbOnline = true;
-      return r;
-    } catch(e){
-      if(i===retries){
-        if(fbOnline){ fbOnline=false; } // only log once
-        return null;
-      }
-      await new Promise(r=>setTimeout(r,800*(i+1)));
-    }
-  }
-  return null;
-}
 async function fbGet(path){
-  const r=await fbFetch(FB+path+'.json');
-  if(!r||!r.ok) return null;
-  try{ return await r.json(); }catch(e){ return null; }
+  try{
+    const r=await fetch(FB+path+'.json');
+    if(!r.ok){console.warn('fbGet HTTP',r.status);return null;}
+    return await r.json();
+  }catch(e){console.warn('fbGet err',e);return null;}
 }
 async function fbSet(path,data){
-  const r=await fbFetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});
-  return r&&r.ok;
+  try{
+    const r=await fetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});
+    return r.ok;
+  }catch(e){console.warn('fbSet err',e);return false;}
 }
 async function fbPush(path,data){
-  const r=await fbFetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});
-  return r&&r.ok;
+  try{
+    const r=await fetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});
+    if(!r.ok){console.warn('fbPush HTTP',r.status);return false;}
+    return true;
+  }catch(e){console.warn('fbPush err',e);return false;}
 }
-const FIREBASE_URL = FB;
+
+const FIREBASE_URL = FB; // backwards compat
 
 const TEAM = [
   { name:'Jose Yauri',        role:'Ing. Geógrafo · Geomática',  color:'#4ecba0', init:'JY' },
@@ -1133,46 +994,14 @@ async function addActivity(code,day,hr){
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
 
 // ── RENDER RIGHT PANEL ────────────────────────────────────────────────────────
-function renderRPProjs(filter){
-  if(filter===undefined) filter='';
-  var el=document.getElementById('rp-projs');
-  if(!projects.length){
-    el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>';
-    return;
-  }
-  var q=filter.toLowerCase().trim();
-  var html='';
-  var count=0;
-  for(var i=0;i<projects.length;i++){
-    var p=projects[i];
-    if(q && p.code.toLowerCase().indexOf(q)===-1) continue;
-    var active=activeIdx===i?'active':'';
-    html+='<div class="rp-proj '+active+'" onclick="activateProj('+i+')">';
-    html+='<div class="rp-pdot" style="background:'+p.color+'"></div>';
-    html+='<div class="rp-pcode">'+highlightMatch(p.code,q)+'</div>';
-    html+='</div>';
-    count++;
-  }
-  if(count===0){
-    html='<div style="font-size:12px;color:var(--text3);padding:8px;text-align:center">Sin resultados para <b style="color:var(--gold2)">'+filter+'</b></div>';
-  }
-  el.innerHTML=html;
-}
-
-
-function highlightMatch(text, q){
-  if(!q) return text;
-  const idx = text.toLowerCase().indexOf(q);
-  if(idx===-1) return text;
-  return text.slice(0,idx)
-    + '<span style="background:rgba(201,168,76,0.35);color:var(--gold2);border-radius:2px">'
-    + text.slice(idx, idx+q.length)
-    + '</span>'
-    + text.slice(idx+q.length);
-}
-
-function filterProjects(val){
-  renderRPProjs(val);
+function renderRPProjs(){
+  const el=document.getElementById('rp-projs');
+  if(!projects.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>'; return; }
+  el.innerHTML=projects.map((p,i)=>`
+    <div class="rp-proj ${activeIdx===i?'active':''}" onclick="activateProj(${i})">
+      <div class="rp-pdot" style="background:${p.color}"></div>
+      <div class="rp-pcode">${p.code}</div>
+    </div>`).join('');
 }
 function renderMiniLog(){
   if(!currentUser) return;
@@ -1701,16 +1530,26 @@ function gameStart(){
     'EPSG:4326','EPSG:32718','DATUM:WGS','GRS80','NAD83',
   ];
 
+  function makeAsteroidShape(r){
+    var pts=[],n=8+Math.floor(Math.random()*4);
+    for(var i=0;i<n;i++){
+      var a=(i/n)*Math.PI*2,jr=r*(0.65+Math.random()*0.38);
+      pts.push({x:Math.cos(a)*jr,y:Math.sin(a)*jr});
+    }
+    return pts;
+  }
   function spawnCoord(){
-    const isRed = Math.random() < 0.2;
+    var isRed=Math.random()<0.2;
+    var r=22+Math.random()*12;
     GS.coords.push({
-      x: 20 + Math.random()*(W-40),
-      y: -20,
-      vy: (0.8 + Math.random()*0.8 + GS.level*0.15) * (isRed?1.6:1),
-      text: coordPool[Math.floor(Math.random()*coordPool.length)],
-      color: isRed ? '#e07a5f' : '#4ecba0',
-      pts: isRed ? 30 : 10,
-      w: 72, h: 18,
+      x:r+Math.random()*(W-r*2),y:-r*2,
+      vy:(0.7+Math.random()*0.7+GS.level*0.12)*(isRed?1.5:1),
+      text:coordPool[Math.floor(Math.random()*coordPool.length)],
+      color:isRed?'#e07a5f':'#4ecba0',
+      pts:isRed?30:10,r:r,
+      rot:0,rotSpeed:(Math.random()-0.5)*0.025,
+      isRed:isRed,pts_shape:makeAsteroidShape(r),
+      w:r*2,h:r*2,
     });
   }
 
@@ -1797,11 +1636,11 @@ function gameStart(){
     }
 
     // Move coords
-    GS.coords = GS.coords.filter(c=>{
+    GS.coords = GS.coords.filter(function(c){
       c.y += c.vy;
-      if(c.y > H+10){
+      if(c.y > H+c.r*2){
         GS.lives--;
-        addParticles(c.x, H-10, '#e07a5f', 8);
+        addParticles(c.x, H-10, '#e07a5f', 10);
         if(GS.lives<=0){ gameOver(); return false; }
         updateScore();
         return false;
@@ -1815,10 +1654,11 @@ function gameStart(){
     // Collision
     GS.bullets = GS.bullets.filter(b=>{
       let hit=false;
-      GS.coords = GS.coords.filter(c=>{
-        if(!hit && Math.abs(b.x-c.x)<c.w/2 && Math.abs(b.y-c.y)<c.h){
+      GS.coords = GS.coords.filter(function(c){
+        var dist=Math.sqrt((b.x-c.x)*(b.x-c.x)+(b.y-c.y)*(b.y-c.y));
+        if(!hit && dist < c.r+b.r){
           hit=true; GS.score+=c.pts;
-          addParticles(c.x,c.y,c.color,12);
+          addParticles(c.x,c.y,c.color,16);
           updateScore();
           return false;
         }
@@ -1841,28 +1681,57 @@ function gameStart(){
     for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
     for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
 
-    // Coords
-    GS.coords.forEach(c=>{
+    // Asteroids with coord text
+    GS.coords.forEach(function(c){
       ctx.save();
-      ctx.strokeStyle=c.color+'88';
-      ctx.fillStyle=c.color+'22';
-      ctx.lineWidth=1;
-      const rx=c.x-c.w/2, ry=c.y-c.h/2;
-      ctx.beginPath();ctx.roundRect(rx,ry,c.w,c.h,4);
-      ctx.fill();ctx.stroke();
+      ctx.translate(c.x, c.y);
+      c.rot = (c.rot||0) + c.rotSpeed;
+      ctx.rotate(c.rot);
+      // Asteroid shape (irregular polygon)
+      var pts=c.pts_shape;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x,pts[0].y);
+      for(var pi=1;pi<pts.length;pi++) ctx.lineTo(pts[pi].x,pts[pi].y);
+      ctx.closePath();
+      ctx.fillStyle=c.isRed?'#4a1a0a':'#2a2318';
+      ctx.fill();
+      ctx.strokeStyle=c.color+'99';
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      // Surface cracks
+      ctx.strokeStyle=c.color+'44';ctx.lineWidth=0.7;
+      ctx.beginPath();ctx.moveTo(-c.r*0.3,-c.r*0.5);ctx.lineTo(c.r*0.1,c.r*0.1);ctx.lineTo(-c.r*0.2,c.r*0.4);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(c.r*0.2,-c.r*0.2);ctx.lineTo(c.r*0.5,c.r*0.3);ctx.stroke();
+      // Glow
+      ctx.restore();
+      ctx.save();
+      ctx.translate(c.x,c.y);
+      var g=ctx.createRadialGradient(0,0,c.r*0.5,0,0,c.r*1.4);
+      g.addColorStop(0,c.color+'22');g.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(0,0,c.r*1.4,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      // Coord text (always upright)
       ctx.fillStyle=c.color;
-      ctx.font='10px Consolas,monospace';
+      ctx.font='bold 9px Consolas,monospace';
       ctx.textAlign='center';
-      ctx.fillText(c.text,c.x,c.y+4);
+      ctx.textBaseline='middle';
+      ctx.shadowBlur=4;ctx.shadowColor=c.color;
+      ctx.fillText(c.text,0,0);
+      ctx.shadowBlur=0;
       ctx.restore();
     });
 
-    // Bullets
-    GS.bullets.forEach(b=>{
+    // Laser bullets
+    GS.bullets.forEach(function(b){
       ctx.save();
-      ctx.fillStyle='#c9a84c';
-      ctx.shadowBlur=8;ctx.shadowColor='#c9a84c';
-      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+      // Laser beam
+      var lg=ctx.createLinearGradient(b.x,b.y+8,b.x,b.y-12);
+      lg.addColorStop(0,'transparent');lg.addColorStop(0.4,'#4ecba0');lg.addColorStop(1,'#ffffff');
+      ctx.strokeStyle=lg;ctx.lineWidth=3;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(b.x,b.y+6);ctx.lineTo(b.x,b.y-10);ctx.stroke();
+      // Glow
+      ctx.shadowBlur=8;ctx.shadowColor='#4ecba0';
+      ctx.strokeStyle='rgba(78,203,160,0.4)';ctx.lineWidth=6;
+      ctx.beginPath();ctx.moveTo(b.x,b.y+4);ctx.lineTo(b.x,b.y-8);ctx.stroke();
       ctx.restore();
     });
 
@@ -1875,15 +1744,44 @@ function gameStart(){
       ctx.restore();
     });
 
-    // Ship (triangle)
+    // Ship (spaceship)
     ctx.save();
-    ctx.fillStyle='#4ecba0';
-    ctx.shadowBlur=12;ctx.shadowColor='#4ecba0';
+    ctx.translate(GS.ship.x, GS.ship.y);
+    ctx.shadowBlur=14;ctx.shadowColor='#4ecba0';
+    // Engine glow
+    ctx.fillStyle='rgba(78,203,160,0.3)';
+    ctx.beginPath();ctx.ellipse(0,14,8,6,0,0,Math.PI*2);ctx.fill();
+    // Engine flame flicker
+    var flicker=0.7+0.3*Math.sin(GS.frameCount*0.3);
+    ctx.fillStyle='rgba(201,168,76,'+flicker+')';
+    ctx.beginPath();ctx.moveTo(-5,12);ctx.lineTo(0,22+flicker*6);ctx.lineTo(5,12);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,220,100,'+flicker*0.7+')';
+    ctx.beginPath();ctx.moveTo(-2,12);ctx.lineTo(0,18+flicker*4);ctx.lineTo(2,12);ctx.closePath();ctx.fill();
+    // Main body
+    ctx.fillStyle='#2d6b50';
     ctx.beginPath();
-    ctx.moveTo(GS.ship.x, GS.ship.y-GS.ship.h/2);
-    ctx.lineTo(GS.ship.x-GS.ship.w/2, GS.ship.y+GS.ship.h/2);
-    ctx.lineTo(GS.ship.x+GS.ship.w/2, GS.ship.y+GS.ship.h/2);
+    ctx.moveTo(0,-18);ctx.lineTo(10,0);ctx.lineTo(8,12);ctx.lineTo(-8,12);ctx.lineTo(-10,0);
     ctx.closePath();ctx.fill();
+    ctx.fillStyle='#4ecba0';
+    ctx.beginPath();
+    ctx.moveTo(0,-18);ctx.lineTo(8,0);ctx.lineTo(7,10);ctx.lineTo(-7,10);ctx.lineTo(-8,0);
+    ctx.closePath();ctx.fill();
+    // Cockpit
+    ctx.fillStyle='rgba(100,220,255,0.85)';
+    ctx.beginPath();ctx.ellipse(0,-6,4,5,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(150,240,255,0.5)';ctx.lineWidth=0.8;ctx.stroke();
+    // Wings
+    ctx.fillStyle='#3aaa85';
+    ctx.beginPath();ctx.moveTo(-8,4);ctx.lineTo(-18,14);ctx.lineTo(-14,12);ctx.lineTo(-8,10);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(8,4);ctx.lineTo(18,14);ctx.lineTo(14,12);ctx.lineTo(8,10);ctx.closePath();ctx.fill();
+    // Wing accent
+    ctx.fillStyle='#4ecba0';
+    ctx.beginPath();ctx.moveTo(-8,5);ctx.lineTo(-16,13);ctx.lineTo(-13,12);ctx.lineTo(-8,9);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(16,13);ctx.lineTo(13,12);ctx.lineTo(8,9);ctx.closePath();ctx.fill();
+    // Engine nozzles
+    ctx.fillStyle='#1d5a40';
+    ctx.beginPath();ctx.roundRect(-7,10,6,5,2);ctx.fill();
+    ctx.beginPath();ctx.roundRect(1,10,6,5,2);ctx.fill();
     ctx.restore();
 
     // HUD
@@ -1947,106 +1845,160 @@ async function loadLeaderboard(){
   }
 }
 
-// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
-let notifEnabled = false;
-let notifInterval = null;
-
-async function toggleNotifications(){
-  const btn = document.getElementById('notif-btn');
-  if(!notifEnabled){
-    // Request permission
-    if(!('Notification' in window)){
-      showToast('Tu navegador no soporta notificaciones');
-      return;
-    }
-    const perm = await Notification.requestPermission();
-    if(perm !== 'granted'){
-      showToast('Permiso de notificaciones denegado');
-      return;
-    }
-    notifEnabled = true;
-    btn.classList.add('active');
-    startNotifScheduler();
-    showToast('✅ Notificaciones activadas — cada hora de 9AM a 5PM');
-    // Save preference
-    ss('notif_enabled', true);
-  } else {
-    notifEnabled = false;
-    btn.classList.remove('active');
-    if(notifInterval) clearInterval(notifInterval);
-    notifInterval = null;
-    ss('notif_enabled', false);
-    showToast('🔕 Notificaciones desactivadas');
-  }
-}
-
-function startNotifScheduler(){
-  // Check every minute if it's time to notify
-  if(notifInterval) clearInterval(notifInterval);
-  notifInterval = setInterval(()=>{
-    if(!notifEnabled) return;
-    const now = new Date();
-    const h = now.getHours();
-    const m = now.getMinutes();
-    // Fire at the top of each hour from 9AM to 5PM
-    if(m === 0 && h >= 9 && h <= 17){
-      fireNotification(h);
-    }
-  }, 60000); // check every minute
-}
-
-function fireNotification(hour){
-  if(!notifEnabled || Notification.permission !== 'granted') return;
-  const h12 = hour > 12 ? hour-12 : hour;
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const proj = activeIdx !== null ? projects[activeIdx]?.code : null;
-  const body = proj
-    ? `Trabajando en: ${proj.substring(0,30)}
-¿Está todo registrado en tu timesheet?`
-    : '¿Ya seleccionaste tu proyecto activo y actualizaste tu timesheet?';
-
-  const notif = new Notification(`⏰ Son las ${h12}:00 ${ampm} — GEOTRACK`, {
-    body,
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>',
-    tag: 'geotrack-hourly',
-    requireInteraction: false,
-  });
-  notif.onclick = ()=>{
-    window.focus();
-    navTo('timesheet', document.querySelector('[data-page="timesheet"]') || document.querySelectorAll('.nb')[1]);
-    notif.close();
-  };
-  setTimeout(()=> notif.close(), 8000);
-}
-
-function testNotification(){
-  if(Notification.permission === 'granted'){
-    fireNotification(new Date().getHours());
-  } else {
-    toggleNotifications();
-  }
-}
-
-function initNotifications(){
-  // Restore saved preference
-  const saved = gs('notif_enabled', false);
-  if(saved && 'Notification' in window && Notification.permission === 'granted'){
-    notifEnabled = true;
-    document.getElementById('notif-btn')?.classList.add('active');
-    startNotifScheduler();
-  }
-}
-
-// Mobile right panel toggle
-function toggleRightPanel(){
-  const rp = document.querySelector('.right-panel');
-  if(rp) rp.classList.toggle('open');
-}
-
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function renderAll(){ renderRPProjs(); await renderDashboard(); renderTS(); renderMiniLog(); await updateStats(); }
 initLogin();
 setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').classList.contains('active')) await renderChat(); await renderDashboard(); await updateStats(); } },10000);
+
+// ── SPACE BACKGROUND ──────────────────────────────────────────────────────────
+(function initSpace(){
+  var cv=document.getElementById('canvas-bg');
+  if(!cv) return;
+  var ctx=cv.getContext('2d'), W, H;
+  function resize(){ W=cv.width=window.innerWidth; H=cv.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+  var stars=[];
+  for(var i=0;i<200;i++) stars.push({x:Math.random()*1920,y:Math.random()*1080,r:Math.random()*1.3+0.2,o:Math.random()*0.7+0.15,ts:0.004+Math.random()*0.012,to:Math.random()*Math.PI*2});
+  var planets=[
+    {x:1573,y:151,r:36,c:'#3d6b8e',ring:true,ringC:'#5a8aad',ringA:0.35,moons:[{a:0,d:55,r:5,mc:'#7a9bb5',s:0.003}],dvx:0.007,dvy:0.003},
+    {x:211,y:786,r:20,c:'#4a7c59',ring:false,moons:[{a:1.2,d:33,r:3,mc:'#7abf8a',s:0.006}],dvx:-0.005,dvy:0.004},
+    {x:1056,y:939,r:12,c:'#7a5c3a',ring:false,moons:[],dvx:0.005,dvy:-0.003},
+    {x:518,y:183,r:8,c:'#5a4a7a',ring:false,moons:[],dvx:-0.006,dvy:0.005},
+  ];
+  function lgt(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.min(255,v+a).toString(16).padStart(2,'0');}).join('');}
+  function drk(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.max(0,v-a).toString(16).padStart(2,'0');}).join('');}
+  var frame=0, sstar=null;
+  function loop(){
+    ctx.clearRect(0,0,W,H); frame++;
+    stars.forEach(function(s){
+      var tw=0.5+0.5*Math.sin(frame*s.ts+s.to);
+      ctx.globalAlpha=s.o*(0.4+0.6*tw);
+      ctx.fillStyle='#fff';
+      ctx.beginPath();ctx.arc(s.x*(W/1920),s.y*(H/1080),s.r,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    planets.forEach(function(p){
+      var x=p.x*(W/1920),y=p.y*(H/1080),r=p.r;
+      var g=ctx.createRadialGradient(x,y,r*0.3,x,y,r*2);
+      g.addColorStop(0,p.c+'44');g.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      if(p.ring){
+        ctx.save();ctx.translate(x,y);ctx.scale(1,Math.sin(p.ringA));
+        ctx.beginPath();ctx.ellipse(0,0,r*1.85,r*1.85,0,0,Math.PI*2);
+        ctx.strokeStyle=p.ringC+'77';ctx.lineWidth=r*0.28;ctx.stroke();ctx.restore();
+      }
+      var bg=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+      bg.addColorStop(0,lgt(p.c,40));bg.addColorStop(0.6,p.c);bg.addColorStop(1,drk(p.c,40));
+      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
+      p.moons.forEach(function(m){
+        m.a+=m.s;
+        var mx=x+Math.cos(m.a)*m.d*(W/1920), my=y+Math.sin(m.a)*m.d*0.5*(H/1080);
+        ctx.beginPath();ctx.arc(mx,my,m.r,0,Math.PI*2);ctx.fillStyle=m.mc+'cc';ctx.fill();
+      });
+      p.x+=p.dvx;p.y+=p.dvy;
+      if(p.x<-100)p.x=1920+100;if(p.x>1920+100)p.x=-100;
+      if(p.y<-100)p.y=1080+100;if(p.y>1080+100)p.y=-100;
+    });
+    if(frame%450===0) sstar={x:Math.random()*W*0.6,y:Math.random()*H*0.3,len:100+Math.random()*100,ang:Math.PI/5+Math.random()*0.3,prog:0};
+    if(sstar){
+      sstar.prog+=0.04;
+      if(sstar.prog>1){sstar=null;}else{
+        var sx=sstar.x+Math.cos(sstar.ang)*sstar.len*sstar.prog;
+        var sy=sstar.y+Math.sin(sstar.ang)*sstar.len*sstar.prog;
+        var tx=sstar.x+Math.cos(sstar.ang)*sstar.len*Math.max(0,sstar.prog-0.3);
+        var ty=sstar.y+Math.sin(sstar.ang)*sstar.len*Math.max(0,sstar.prog-0.3);
+        var sg=ctx.createLinearGradient(tx,ty,sx,sy);
+        sg.addColorStop(0,'transparent');sg.addColorStop(1,'rgba(255,255,220,0.9)');
+        ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(sx,sy);
+        ctx.strokeStyle=sg;ctx.lineWidth=1.5;ctx.stroke();
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── NOTIFICATIONS ──────────────────────────────────────────────────────────────
+var notifEnabled=false,notifInterval=null,titleBlinkInt=null,bannerTO=null;
+var ORIG_TITLE='GEOTRACK — GEOMATICA/FCISA';
+async function toggleNotifications(){
+  var btn=document.getElementById('notif-btn');
+  if(!notifEnabled){
+    notifEnabled=true; if(btn) btn.style.borderColor='var(--em)';
+    if('Notification' in window && Notification.permission==='default') await Notification.requestPermission();
+    startNotifScheduler();
+    showToast('Alertas activadas — cada hora 9AM a 5PM');
+    ss('notif_enabled',true);
+  } else {
+    notifEnabled=false; if(btn) btn.style.borderColor='var(--border)';
+    if(notifInterval){clearInterval(notifInterval);notifInterval=null;}
+    stopTitleBlink(); ss('notif_enabled',false); showToast('Alertas desactivadas');
+  }
+}
+function startNotifScheduler(){
+  if(notifInterval) clearInterval(notifInterval);
+  notifInterval=setInterval(function(){
+    if(!notifEnabled) return;
+    var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+    if(m===0 && s<31 && h>=9 && h<=17) fireAllAlerts(h);
+  },30000);
+}
+function fireAllAlerts(hour){
+  var h12=hour>12?hour-12:(hour===0?12:hour);
+  var ampm=hour>=12?'PM':'AM';
+  var proj=activeIdx!==null&&projects[activeIdx]?projects[activeIdx].code:null;
+  var title='Son las '+h12+':00 '+ampm;
+  var msg=proj?'Proyecto: '+proj.substring(0,28)+'. Verifica tu timesheet.':'Sin proyecto activo. Recuerda registrar tus horas.';
+  if('Notification' in window && Notification.permission==='granted'){
+    try{var n=new Notification('⏰ '+title+' — GEOTRACK',{body:msg,tag:'gt-hourly'});setTimeout(function(){n.close();},8000);}catch(e){}
+  }
+  showBanner(title,msg); startTitleBlink(h12,ampm); playBeep();
+}
+function showBanner(title,msg){
+  var b=document.getElementById('notif-banner');
+  if(!b) return;
+  document.getElementById('nb-title').textContent='⏰ '+title;
+  document.getElementById('nb-msg').textContent=msg;
+  b.classList.add('show');
+  if(bannerTO) clearTimeout(bannerTO);
+  bannerTO=setTimeout(function(){closeBanner();},12000);
+}
+function closeBanner(){
+  var b=document.getElementById('notif-banner');
+  if(b) b.classList.remove('show');
+  if(bannerTO){clearTimeout(bannerTO);bannerTO=null;}
+}
+function startTitleBlink(h12,ampm){
+  stopTitleBlink(); var blink=true,count=0;
+  titleBlinkInt=setInterval(function(){
+    document.title=blink?('⏰ '+h12+':00 '+ampm+' — Actualiza timesheet!'):ORIG_TITLE;
+    blink=!blink; count++; if(count>=20) stopTitleBlink();
+  },1000);
+}
+function stopTitleBlink(){
+  if(titleBlinkInt){clearInterval(titleBlinkInt);titleBlinkInt=null;}
+  document.title=ORIG_TITLE;
+}
+function playBeep(){
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach(function(f,i){
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
+      var t=ac.currentTime+i*0.18;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.12,t+0.05);g.gain.linearRampToValueAtTime(0,t+0.25);
+      o.start(t);o.stop(t+0.3);
+    });
+  }catch(e){}
+}
+function initNotifications(){
+  if(gs('notif_enabled',false)){
+    notifEnabled=true;
+    var btn=document.getElementById('notif-btn');
+    if(btn) btn.style.borderColor='var(--em)';
+    startNotifScheduler();
+  }
+}
 </script>
 </body>
 </html>
