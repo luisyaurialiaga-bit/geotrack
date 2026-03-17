@@ -1335,14 +1335,14 @@ function loadNews(){
     var html='';
     for(var i=0;i<NEWS.length;i++){
       var n=NEWS[i];
-      var imgHtml='';
+      var imgPart='';
       if(n.img){
-        imgHtml='<img src="'+n.img+'" class="news-img" onerror="this.style.display='none'">';
+        imgPart='<img src="'+n.img+'" class="news-img" data-ph="'+n.icon+'">';
       } else {
-        imgHtml='<div class="news-img-placeholder">'+n.icon+'</div>';
+        imgPart='<div class="news-img-placeholder">'+n.icon+'</div>';
       }
       html+='<div class="news-card" data-url="'+n.url+'">';
-      html+=imgHtml;
+      html+=imgPart;
       html+='<div class="news-body">';
       html+='<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.tag+'</div>';
       html+='<div class="news-h">'+n.title+'</div>';
@@ -1351,9 +1351,18 @@ function loadNews(){
     }
     grid.innerHTML=html;
     list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px 0">Noticias rotadas cada dia de la semana</div>';
-    // Add click handlers after render
     grid.querySelectorAll('.news-card').forEach(function(card){
       card.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+      var img=card.querySelector('img');
+      if(img){
+        img.onerror=function(){
+          this.style.display='none';
+          var ph=document.createElement('div');
+          ph.className='news-img-placeholder';
+          ph.textContent=this.getAttribute('data-ph')||'';
+          this.parentNode.insertBefore(ph,this);
+        };
+      }
     });
   },400);
 }
