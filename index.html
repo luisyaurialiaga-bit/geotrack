@@ -699,7 +699,12 @@ select.filter-sel{
       </div>
       <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none">
         <div class="rp-lbl">Seleccionar proyecto</div>
-        <div id="rp-projs"></div>
+        <input id="proj-search" type="text" placeholder="🔍 Buscar proyecto..."
+          oninput="renderRPProjs(this.value)"
+          style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:8px 10px;outline:none;margin-bottom:6px;font-family:var(--mono);transition:border-color 0.2s"
+          onfocus="this.style.borderColor='var(--em2)'"
+          onblur="this.style.borderColor='var(--border)'">
+        <div id="rp-projs" style="flex:1;overflow-y:auto;max-height:340px"></div>
         <button class="btn sm" style="width:100%;margin-top:8px" onclick="selectFolder()">📂 Cargar carpeta</button>
         <button class="btn sm" style="width:100%;margin-top:6px" onclick="openAddProj()">+ Agregar manual</button>
       </div>
@@ -783,14 +788,22 @@ let currentUser = null, projects = [], activeIdx = null, sessionStart = null, is
 
 const gs  = (k,d) => { try { const v=localStorage.getItem('gt2_'+k); return v?JSON.parse(v):d; } catch(e){return d;} };
 const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); } catch(e){} };
+var gridCache={};
 async function gg(u){
-  const data = await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
-  return (data && typeof data==='object') ? data : gs('grid_'+u,{});
+  if(gridCache[u]) return gridCache[u];
+  var local=gs('grid_'+u,{});
+  if(Object.keys(local).length>0){ gridCache[u]=local; }
+  var data=await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
+  var result=(data && typeof data==='object') ? data : local;
+  gridCache[u]=result;
+  return result;
 }
 async function sg(u,g){
-  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'), g);
-  ss('grid_'+u, g); // local backup
+  gridCache[u]=g;
+  ss('grid_'+u,g);
+  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'),g);
 }
+function clearGridCache(){ gridCache={}; }
 
 // ── PARTICLES ─────────────────────────────────────────────────────────────────
 (function initParticles(){
@@ -995,15 +1008,38 @@ async function addActivity(code,day,hr){
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
 
 // ── RENDER RIGHT PANEL ────────────────────────────────────────────────────────
-function renderRPProjs(){
-  const el=document.getElementById('rp-projs');
-  if(!projects.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>'; return; }
-  el.innerHTML=projects.map((p,i)=>`
-    <div class="rp-proj ${activeIdx===i?'active':''}" onclick="activateProj(${i})">
-      <div class="rp-pdot" style="background:${p.color}"></div>
-      <div class="rp-pcode">${p.code}</div>
-    </div>`).join('');
+function renderRPProjs(filter){
+  if(filter===undefined) filter='';
+  var el=document.getElementById('rp-projs');
+  if(!projects.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px">Sin proyectos. Carga carpeta o agrega manualmente.</div>';
+    return;
+  }
+  var q=filter.toLowerCase().trim();
+  var html=''; var count=0;
+  for(var i=0;i<projects.length;i++){
+    var p=projects[i];
+    if(q && p.code.toLowerCase().indexOf(q)===-1) continue;
+    var active=activeIdx===i?' active':'';
+    html+='<div class="rp-proj'+active+'" onclick="activateProj('+i+')">';
+    html+='<div class="rp-pdot" style="background:'+p.color+'"></div>';
+    html+='<div class="rp-pcode">'+hlMatch(p.code,q)+'</div>';
+    html+='</div>';
+    count++;
+  }
+  if(count===0){
+    html='<div style="font-size:12px;color:var(--text3);padding:8px">Sin resultados para "'+filter+'"</div>';
+  }
+  el.innerHTML=html;
 }
+
+function hlMatch(text,q){
+  if(!q) return text;
+  var idx=text.toLowerCase().indexOf(q);
+  if(idx===-1) return text;
+  return text.slice(0,idx)+'<span style="background:rgba(201,168,76,0.35);color:var(--gold2);border-radius:2px">'+text.slice(idx,idx+q.length)+'</span>'+text.slice(idx+q.length);
+}
+
 function renderMiniLog(){
   if(!currentUser) return;
   const log=gs('log_'+currentUser.name,[]);
