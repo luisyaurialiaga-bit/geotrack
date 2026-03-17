@@ -398,6 +398,131 @@ select.filter-sel{
 }
 .toast.show{opacity:1}
 .toast-icon{font-size:16px}
+
+/* ── RESPONSIVE MOBILE ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #app { grid-template-rows: 52px 1fr; }
+
+  /* Header compact */
+  header { padding: 0 12px; }
+  .brand-name { font-size: 14px; }
+  .brand-sub { display: none; }
+  #h-clock { font-size: 16px; letter-spacing: 1px; }
+  #h-date { display: none; }
+  .hdr-btn { display: none; }
+
+  /* Workspace: stack vertically, bottom nav */
+  .workspace {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 56px;
+    position: relative;
+  }
+
+  /* Sidenav becomes bottom bar */
+  nav.sidenav {
+    order: 2;
+    flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    height: 56px;
+    overflow-x: auto;
+  }
+  .nb { width: 44px; height: 44px; }
+  .nb .tip { display: none; }
+  .nav-div { display: none; }
+
+  /* Right panel hidden on mobile, shown as overlay */
+  .right-panel {
+    display: none;
+    position: fixed;
+    bottom: 56px; right: 0; left: 0;
+    z-index: 20;
+    max-height: 60vh;
+    border-top: 1px solid var(--border2);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+  }
+  .right-panel.open { display: flex; }
+
+  /* FAB button for timer */
+  #fab-timer {
+    display: flex !important;
+    position: fixed;
+    bottom: 68px; right: 16px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--em);
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(78,203,160,0.4);
+    z-index: 21;
+    transition: transform 0.2s;
+  }
+  #fab-timer:active { transform: scale(0.92); }
+
+  /* Main panel full width */
+  .main-panel { order: 1; padding: 14px; overflow-y: auto; }
+
+  /* Stats grid 2 cols on mobile */
+  .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+
+  /* Team grid 2 cols */
+  .team-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+
+  /* Timesheet scroll */
+  .ts-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Chat layout single col */
+  #page-chat > div > div[style*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* News grid single col */
+  #news-grid { grid-template-columns: 1fr !important; }
+
+  /* Game canvas smaller */
+  #game-canvas { width: 100% !important; height: auto !important; }
+
+  /* Workload cards */
+  #carga-cards { grid-template-columns: 1fr !important; }
+
+  /* Login wider */
+  .login-wrap { width: 95vw !important; }
+
+  /* Section header wrap */
+  .sec-hdr { flex-wrap: wrap; gap: 8px; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+  .stat-num { font-size: 22px !important; }
+  .card { padding: 14px; }
+  .sec-title { font-size: 14px; }
+}
+
+/* NOTIFICATION BELL */
+.notif-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: transparent; border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; transition: all 0.2s;
+  position: relative;
+}
+.notif-btn:hover { border-color: var(--em2); background: var(--em-glow); }
+.notif-btn.active { border-color: var(--em); background: var(--em-glow); }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--em3); border: 2px solid var(--bg2);
+  display: none;
+}
+.notif-btn.active .notif-badge { display: block; animation: pulse 2s infinite; }
 </style>
 </head>
 <body>
@@ -446,6 +571,8 @@ select.filter-sel{
 
 <!-- APP -->
 <div id="app" style="display:none">
+  <!-- FAB timer for mobile -->
+  <button id="fab-timer" style="display:none" onclick="toggleRightPanel()" title="Proyecto activo">⏱</button>
   <header>
     <div class="brand">
       <div class="brand-icon">🌿</div>
@@ -459,6 +586,10 @@ select.filter-sel{
       <div id="h-date"></div>
     </div>
     <div class="hdr-right">
+      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Notificaciones cada hora">
+        🔔
+        <div class="notif-badge"></div>
+      </button>
       <div class="user-chip" onclick="showLogin()">
         <div class="chip-dot"></div>
         <span id="h-user">—</span>
@@ -683,11 +814,20 @@ select.filter-sel{
           <button class="btn primary" style="flex:1;font-size:12px" id="btn-pause" onclick="togglePause()">⏸ Pausar</button>
         </div>
       </div>
-      <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none">
+      <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none;display:flex;flex-direction:column;gap:8px">
         <div class="rp-lbl">Seleccionar proyecto</div>
-        <div id="rp-projs"></div>
-        <button class="btn sm" style="width:100%;margin-top:8px" onclick="selectFolder()">📂 Cargar carpeta</button>
-        <button class="btn sm" style="width:100%;margin-top:6px" onclick="openAddProj()">+ Agregar manual</button>
+        <div style="position:relative">
+          <input id="proj-search" type="text" placeholder="🔍 Buscar proyecto..."
+            oninput="filterProjects(this.value)"
+            style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+            color:var(--text);font-size:12px;padding:8px 12px 8px 12px;outline:none;font-family:var(--mono);
+            transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--em2)'"
+            onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div id="rp-projs" style="flex:1;overflow-y:auto"></div>
+        <button class="btn sm" style="width:100%" onclick="selectFolder()">📂 Cargar carpeta</button>
+        <button class="btn sm" style="width:100%;margin-top:4px" onclick="openAddProj()">+ Agregar manual</button>
       </div>
       <div style="border-top:1px solid var(--border);padding:12px 14px">
         <div class="rp-lbl" style="margin-bottom:8px">Log de hoy</div>
@@ -729,29 +869,41 @@ select.filter-sel{
 // ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
 const FB = 'https://geotrack-fcisa-default-rtdb.firebaseio.com';
 const FB_H = {'Content-Type':'application/json'};
+let fbOnline = true;
 
+async function fbFetch(url, opts, retries=2){
+  for(let i=0;i<=retries;i++){
+    try{
+      const r = await Promise.race([
+        fetch(url, opts),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))
+      ]);
+      fbOnline = true;
+      return r;
+    } catch(e){
+      if(i===retries){
+        if(fbOnline){ fbOnline=false; } // only log once
+        return null;
+      }
+      await new Promise(r=>setTimeout(r,800*(i+1)));
+    }
+  }
+  return null;
+}
 async function fbGet(path){
-  try{
-    const r=await fetch(FB+path+'.json');
-    if(!r.ok){console.warn('fbGet HTTP',r.status);return null;}
-    return await r.json();
-  }catch(e){console.warn('fbGet err',e);return null;}
+  const r=await fbFetch(FB+path+'.json');
+  if(!r||!r.ok) return null;
+  try{ return await r.json(); }catch(e){ return null; }
 }
 async function fbSet(path,data){
-  try{
-    const r=await fetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});
-    return r.ok;
-  }catch(e){console.warn('fbSet err',e);return false;}
+  const r=await fbFetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});
+  return r&&r.ok;
 }
 async function fbPush(path,data){
-  try{
-    const r=await fetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});
-    if(!r.ok){console.warn('fbPush HTTP',r.status);return false;}
-    return true;
-  }catch(e){console.warn('fbPush err',e);return false;}
+  const r=await fbFetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});
+  return r&&r.ok;
 }
-
-const FIREBASE_URL = FB; // backwards compat
+const FIREBASE_URL = FB;
 
 const TEAM = [
   { name:'Jose Yauri',        role:'Ing. Geógrafo · Geomática',  color:'#4ecba0', init:'JY' },
@@ -841,6 +993,7 @@ async function finishLogin(){
     initTSFilter();
     try{ await renderAll(); }catch(e){ console.error('renderAll',e); }
     try{ loadNews(); }catch(e){}
+  try{ initNotifications(); }catch(e){}
   } catch(err){
     console.error('finishLogin error:',err);
     alert('Error al iniciar: '+err.message);
@@ -980,14 +1133,46 @@ async function addActivity(code,day,hr){
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
 
 // ── RENDER RIGHT PANEL ────────────────────────────────────────────────────────
-function renderRPProjs(){
-  const el=document.getElementById('rp-projs');
-  if(!projects.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>'; return; }
-  el.innerHTML=projects.map((p,i)=>`
-    <div class="rp-proj ${activeIdx===i?'active':''}" onclick="activateProj(${i})">
-      <div class="rp-pdot" style="background:${p.color}"></div>
-      <div class="rp-pcode">${p.code}</div>
-    </div>`).join('');
+function renderRPProjs(filter){
+  if(filter===undefined) filter='';
+  var el=document.getElementById('rp-projs');
+  if(!projects.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>';
+    return;
+  }
+  var q=filter.toLowerCase().trim();
+  var html='';
+  var count=0;
+  for(var i=0;i<projects.length;i++){
+    var p=projects[i];
+    if(q && p.code.toLowerCase().indexOf(q)===-1) continue;
+    var active=activeIdx===i?'active':'';
+    html+='<div class="rp-proj '+active+'" onclick="activateProj('+i+')">';
+    html+='<div class="rp-pdot" style="background:'+p.color+'"></div>';
+    html+='<div class="rp-pcode">'+highlightMatch(p.code,q)+'</div>';
+    html+='</div>';
+    count++;
+  }
+  if(count===0){
+    html='<div style="font-size:12px;color:var(--text3);padding:8px;text-align:center">Sin resultados para <b style="color:var(--gold2)">'+filter+'</b></div>';
+  }
+  el.innerHTML=html;
+}
+
+
+function highlightMatch(text, q){
+  if(!q) return text;
+  const idx = text.toLowerCase().indexOf(q);
+  if(idx===-1) return text;
+  return text.slice(0,idx)
+    + '<span style="background:rgba(201,168,76,0.35);color:var(--gold2);border-radius:2px">'
+    + text.slice(idx, idx+q.length)
+    + '</span>'
+    + text.slice(idx+q.length);
+}
+
+function filterProjects(val){
+  renderRPProjs(val);
 }
 function renderMiniLog(){
   if(!currentUser) return;
@@ -1760,6 +1945,102 @@ async function loadLeaderboard(){
   } catch(e){
     el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>';
   }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+let notifEnabled = false;
+let notifInterval = null;
+
+async function toggleNotifications(){
+  const btn = document.getElementById('notif-btn');
+  if(!notifEnabled){
+    // Request permission
+    if(!('Notification' in window)){
+      showToast('Tu navegador no soporta notificaciones');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){
+      showToast('Permiso de notificaciones denegado');
+      return;
+    }
+    notifEnabled = true;
+    btn.classList.add('active');
+    startNotifScheduler();
+    showToast('✅ Notificaciones activadas — cada hora de 9AM a 5PM');
+    // Save preference
+    ss('notif_enabled', true);
+  } else {
+    notifEnabled = false;
+    btn.classList.remove('active');
+    if(notifInterval) clearInterval(notifInterval);
+    notifInterval = null;
+    ss('notif_enabled', false);
+    showToast('🔕 Notificaciones desactivadas');
+  }
+}
+
+function startNotifScheduler(){
+  // Check every minute if it's time to notify
+  if(notifInterval) clearInterval(notifInterval);
+  notifInterval = setInterval(()=>{
+    if(!notifEnabled) return;
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    // Fire at the top of each hour from 9AM to 5PM
+    if(m === 0 && h >= 9 && h <= 17){
+      fireNotification(h);
+    }
+  }, 60000); // check every minute
+}
+
+function fireNotification(hour){
+  if(!notifEnabled || Notification.permission !== 'granted') return;
+  const h12 = hour > 12 ? hour-12 : hour;
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const proj = activeIdx !== null ? projects[activeIdx]?.code : null;
+  const body = proj
+    ? `Trabajando en: ${proj.substring(0,30)}
+¿Está todo registrado en tu timesheet?`
+    : '¿Ya seleccionaste tu proyecto activo y actualizaste tu timesheet?';
+
+  const notif = new Notification(`⏰ Son las ${h12}:00 ${ampm} — GEOTRACK`, {
+    body,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>',
+    tag: 'geotrack-hourly',
+    requireInteraction: false,
+  });
+  notif.onclick = ()=>{
+    window.focus();
+    navTo('timesheet', document.querySelector('[data-page="timesheet"]') || document.querySelectorAll('.nb')[1]);
+    notif.close();
+  };
+  setTimeout(()=> notif.close(), 8000);
+}
+
+function testNotification(){
+  if(Notification.permission === 'granted'){
+    fireNotification(new Date().getHours());
+  } else {
+    toggleNotifications();
+  }
+}
+
+function initNotifications(){
+  // Restore saved preference
+  const saved = gs('notif_enabled', false);
+  if(saved && 'Notification' in window && Notification.permission === 'granted'){
+    notifEnabled = true;
+    document.getElementById('notif-btn')?.classList.add('active');
+    startNotifScheduler();
+  }
+}
+
+// Mobile right panel toggle
+function toggleRightPanel(){
+  const rp = document.querySelector('.right-panel');
+  if(rp) rp.classList.toggle('open');
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
