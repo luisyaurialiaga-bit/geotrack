@@ -294,14 +294,14 @@ table.ts th.day-h{background:var(--bg3);color:var(--text);min-width:90px;font-si
   background:linear-gradient(135deg,#141918 0%,#1a2420 50%,#151c1a 100%);
   display:flex;align-items:center;justify-content:center;
 }
-.login-wrap{width:500px;max-width:95vw}
+.login-wrap{width:360px;max-width:95vw}
 .login-header{text-align:center;margin-bottom:32px}
 .login-icon{font-size:48px;margin-bottom:12px}
 .login-title{font-size:28px;font-weight:700;color:var(--text);letter-spacing:1px}
 .login-sub{font-size:13px;color:var(--text3);margin-top:6px}
 .login-box{
   background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
-  padding:28px;box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  padding:24px 22px;box-shadow:0 8px 32px rgba(0,0,0,0.4);
 }
 .login-lbl{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px}
 .users-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
@@ -398,7 +398,7 @@ select.filter-sel{
 }
 .toast.show{opacity:1}
 .toast-icon{font-size:16px}
-.pin-key{background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:20px;font-weight:600;padding:14px;cursor:pointer;transition:all 0.15s;font-family:var(--mono)}
+.pin-key{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:16px;font-weight:600;padding:9px 6px;cursor:pointer;transition:all 0.15s;font-family:var(--mono)}
 .pin-key:hover{background:var(--card);border-color:var(--em2)}
 .pin-key:active{transform:scale(0.94)}
 #notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
@@ -443,14 +443,14 @@ select.filter-sel{
           <button onclick="backToSelect()" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:6px 10px;cursor:pointer">&larr;</button>
           <div><div id="pin-user-name" style="font-size:15px;font-weight:600;color:var(--text)"></div><div style="font-size:11px;color:var(--text3)">Ingresa tu clave</div></div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px" id="pin-dots">
-          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d0"></div>
-          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d1"></div>
-          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d2"></div>
-          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d3"></div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:10px" id="pin-dots">
+          <div style="width:12px;height:12px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d0"></div>
+          <div style="width:12px;height:12px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d1"></div>
+          <div style="width:12px;height:12px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d2"></div>
+          <div style="width:12px;height:12px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d3"></div>
         </div>
         <div id="pin-error" style="font-size:12px;color:#e07a5f;text-align:center;min-height:18px;margin-bottom:10px"></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
           <button class="pin-key" onclick="pinPress(1)">1</button><button class="pin-key" onclick="pinPress(2)">2</button><button class="pin-key" onclick="pinPress(3)">3</button>
           <button class="pin-key" onclick="pinPress(4)">4</button><button class="pin-key" onclick="pinPress(5)">5</button><button class="pin-key" onclick="pinPress(6)">6</button>
           <button class="pin-key" onclick="pinPress(7)">7</button><button class="pin-key" onclick="pinPress(8)">8</button><button class="pin-key" onclick="pinPress(9)">9</button>
@@ -758,6 +758,23 @@ select.filter-sel{
 // ── DATA ──────────────────────────────────────────────────────────────────────
 // Firebase helpers defined below
 
+var FB='https://geotrack-fcisa-default-rtdb.firebaseio.com';
+var FB_H={'Content-Type':'application/json'};
+async function fbFetch(url,opts,retries){
+  if(retries===undefined) retries=2;
+  for(var i=0;i<=retries;i++){
+    try{
+      var r=await Promise.race([fetch(url,opts),new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},5000)})]);
+      return r;
+    }catch(e){if(i===retries) return null; await new Promise(function(r){setTimeout(r,600*(i+1));});}
+  }
+  return null;
+}
+async function fbGet(path){var r=await fbFetch(FB+path+'.json');if(!r||!r.ok) return null;try{return await r.json();}catch(e){return null;}}
+async function fbSet(path,data){var r=await fbFetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
+async function fbPush(path,data){var r=await fbFetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
+var FIREBASE_URL=FB;
+
 const TEAM = [
   { name:'Jose Yauri',        role:'Ing. Geógrafo · Geomática',  color:'#4ecba0', init:'JY' },
   { name:'Elsa Sanez',        role:'Geógrafa · Geomática',       color:'#6db8e8', init:'ES' },
@@ -866,7 +883,7 @@ function pinConfirm(){
   if(pinBuffer===correct){
     isGuest=false;
     currentUser=Object.assign({},u);
-    finishLogin().catch(function(e){console.error(e);});
+    finishLogin();
   } else {
     document.getElementById('pin-error').textContent='Clave incorrecta. Intenta de nuevo.';
     pinBuffer=''; updatePinDots();
@@ -880,28 +897,76 @@ function loginGuest(){
   var n=document.getElementById('guest-name-inp').value.trim();
   isGuest=true;
   currentUser={name:n||'Invitado',role:'Visitante',color:'#888780',init:'IV'};
-  finishLogin().catch(function(e){console.error(e);});
+  finishLogin();
 }
 function loginIdx(i){ selectUser(i); }
 function loginCustom(){ showGuestLogin(); }
 
 
-async function finishLogin(){
-  try {
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='grid';
-    document.getElementById('h-user').textContent=isGuest?('Inv: '+currentUser.name):currentUser.name;
-    const fbProjs = await fbGet('/projects');
-  projects = (fbProjs && Array.isArray(fbProjs)) ? fbProjs : gs('projects',[]);
-    try{ await setOnline(); }catch(e){}
-    initTSFilter();
-    try{ await renderAll(); }catch(e){ console.error('renderAll',e); }
+function finishLogin(){
+  // 1. Show app immediately - no async needed for this
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='grid';
+  document.getElementById('h-user').textContent=currentUser.name;
+  var badge=document.getElementById('guest-badge');
+  if(badge) badge.style.display=isGuest?'block':'none';
+  
+  // 2. Load data asynchronously after UI is visible
+  setTimeout(function(){
+    try{ projects=gs('projects',[]); }catch(e){}
+    try{ initTSFilter(); }catch(e){}
+    try{ renderRPProjs(); }catch(e){}
+    try{ renderMiniLogSync(); }catch(e){}
     try{ loadNews(); }catch(e){}
-  try{ initNotifications(); }catch(e){}
-  } catch(err){
-    console.error('finishLogin error:',err);
-    alert('Error al iniciar: '+err.message);
+    try{ initNotifications(); }catch(e){}
+    // Load Firebase data in background
+    loadRemoteData();
+  }, 50);
+}
+
+function renderMiniLogSync(){
+  if(!currentUser) return;
+  var log=gs('log_'+currentUser.name,[]);
+  var el=document.getElementById('mini-log');
+  if(!el) return;
+  if(!log.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin registros aun</div>'; return; }
+  var html='';
+  var recent=[...log].reverse().slice(0,12);
+  for(var i=0;i<recent.length;i++){
+    var l=recent[i];
+    html+='<div class="mle"><span class="mle-t">'+l.ts+'</span><span class="mle-c">'+l.code.substring(0,22)+'</span><span class="mle-d">'+l.dur+'</span></div>';
   }
+  el.innerHTML=html;
+}
+
+async function loadRemoteData(){
+  try{
+    var fbProjs=await fbGet('/projects');
+    if(fbProjs&&Array.isArray(fbProjs)){ projects=fbProjs; renderRPProjs(); }
+  }catch(e){}
+  try{ await renderDashboard(); }catch(e){ renderDashboardOffline(); }
+  try{ renderTS(); }catch(e){}
+  try{ await updateStats(); }catch(e){}
+  try{ setOnline(); }catch(e){}
+}
+
+function renderDashboardOffline(){
+  // Simple offline dashboard
+  var tg=document.getElementById('team-grid');
+  if(!tg) return;
+  var html='';
+  for(var i=0;i<TEAM.length;i++){
+    var u=TEAM[i];
+    html+='<div class="member"><div class="m-avatar" style="background:'+u.color+'22;border-color:'+u.color+';color:'+u.color+'">'+u.init+'</div>'
+      +'<div class="m-name">'+u.name+'</div>'
+      +'<div class="m-role">'+u.role+'</div>'
+      +'<div class="m-status"><span style="color:var(--text3)">Offline</span></div></div>';
+  }
+  tg.innerHTML=html;
+  var ra=document.getElementById('recent-acts');
+  if(ra) ra.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin conexion a Firebase</div>';
+  var wl=document.getElementById('week-lbl');
+  if(wl) wl.textContent=getWeekLabel();
 }
 function showLogin(){
   if(activeIdx!==null&&sessionStart) closeSession();
@@ -1108,7 +1173,7 @@ document.getElementById('new-proj-inp').addEventListener('keydown',e=>{ if(e.key
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 async function renderDashboard(){
   document.getElementById('week-lbl').textContent=getWeekLabel();
-  const online=await getOnline();
+  var online=[]; try{ online=await getOnline(); }catch(e){}
   document.getElementById('team-grid').innerHTML=TEAM.map(u=>{
     const on=online.find(o=>o.name===u.name);
     return `<div class="member ${on?'online':''}">
@@ -1144,7 +1209,7 @@ async function updateStats(){
   document.getElementById('s-today').textContent=th;
   document.getElementById('s-week').textContent=wh;
   document.getElementById('s-projs').textContent=pset.size;
-  document.getElementById('s-online').textContent=(await getOnline()).length;
+  try{ document.getElementById('s-online').textContent=(await getOnline()).length; }catch(e){document.getElementById('s-online').textContent='?';}
   renderMiniLog();
 }
 async function renderStats(){
@@ -1287,7 +1352,7 @@ async function sendChat(){
   await renderChat();
 }
 async function renderChatMembers(){
-  const online=await getOnline();
+  var online=[]; try{ online=await getOnline(); }catch(e){}
   const el=document.getElementById('chat-members');
   if(!el) return;
   el.innerHTML=TEAM.map(u=>{
@@ -1904,23 +1969,6 @@ function hlMatch(t,q){
 }
 
 // -- FIREBASE HELPERS WITH RETRY --
-var FB='https://geotrack-fcisa-default-rtdb.firebaseio.com';
-var FB_H={'Content-Type':'application/json'};
-async function fbFetch(url,opts,retries){
-  if(retries===undefined) retries=2;
-  for(var i=0;i<=retries;i++){
-    try{
-      var r=await Promise.race([fetch(url,opts),new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},5000)})]);
-      return r;
-    }catch(e){if(i===retries) return null; await new Promise(function(r){setTimeout(r,600*(i+1));});}
-  }
-  return null;
-}
-async function fbGet(path){var r=await fbFetch(FB+path+'.json');if(!r||!r.ok) return null;try{return await r.json();}catch(e){return null;}}
-async function fbSet(path,data){var r=await fbFetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
-async function fbPush(path,data){var r=await fbFetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
-var FIREBASE_URL=FB;
-
 // -- NOTIFICATIONS --
 var notifEnabled=false,notifInterval=null,titleBlinkInt=null,bannerTO=null;
 var ORIG_TITLE='GEOTRACK - GEOMATICA/FCISA';
