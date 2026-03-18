@@ -756,32 +756,7 @@ select.filter-sel{
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-// ── FIREBASE CONFIG ──────────────────────────────────────────────────────────
-const FB = 'https://geotrack-fcisa-default-rtdb.firebaseio.com';
-const FB_H = {'Content-Type':'application/json'};
-
-async function fbGet(path){
-  try{
-    const r=await fetch(FB+path+'.json');
-    if(!r.ok){console.warn('fbGet HTTP',r.status);return null;}
-    return await r.json();
-  }catch(e){console.warn('fbGet err',e);return null;}
-}
-async function fbSet(path,data){
-  try{
-    const r=await fetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});
-    return r.ok;
-  }catch(e){console.warn('fbSet err',e);return false;}
-}
-async function fbPush(path,data){
-  try{
-    const r=await fetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});
-    if(!r.ok){console.warn('fbPush HTTP',r.status);return false;}
-    return true;
-  }catch(e){console.warn('fbPush err',e);return false;}
-}
-
-const FIREBASE_URL = FB; // backwards compat
+// Firebase helpers defined below
 
 const TEAM = [
   { name:'Jose Yauri',        role:'Ing. Geógrafo · Geomática',  color:'#4ecba0', init:'JY' },
@@ -799,14 +774,7 @@ let currentUser = null, projects = [], activeIdx = null, sessionStart = null, is
 
 const gs  = (k,d) => { try { const v=localStorage.getItem('gt2_'+k); return v?JSON.parse(v):d; } catch(e){return d;} };
 const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); } catch(e){} };
-async function gg(u){
-  const data = await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
-  return (data && typeof data==='object') ? data : gs('grid_'+u,{});
-}
-async function sg(u,g){
-  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'), g);
-  ss('grid_'+u, g); // local backup
-}
+// gg/sg defined below
 
 // ── PARTICLES ─────────────────────────────────────────────────────────────────
 (function initParticles(){
@@ -1401,16 +1369,6 @@ async function sendAI(){
 function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── NEWS ──────────────────────────────────────────────────────────────────────
-const NEWS=[
-  {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'🤖',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: nuevas capacidades de análisis y razonamiento espacial para proyectos ambientales',date:'Mar 2025',url:'https://www.anthropic.com/news'},
-  {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3 — nuevas herramientas de análisis geoespacial potenciadas con inteligencia artificial',date:'Feb 2025',url:'https://www.esri.com/arcgis-blog'},
-  {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Nuevos datasets Landsat 9 disponibles para monitoreo ambiental y cobertura vegetal en Sudamérica',date:'Mar 2025',url:'https://earthdata.nasa.gov'},
-  {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'🌿',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para estudios de impacto ambiental utilizando tecnología SIG y teledetección',date:'Mar 2025',url:'https://www.gob.pe/minam'},
-  {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',title:'QGIS 3.36 Maidenhead — mejoras de rendimiento y nuevos plugins de análisis espacial',date:'Feb 2025',url:'https://qgis.org'},
-  {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',title:'Sentinel-2 colecciones actualizadas con cobertura completa para Perú y Latinoamérica',date:'Mar 2025',url:'https://earthengine.google.com'},
-  {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'📍',title:'Actualización de datos cartográficos para Lima Metropolitana y regiones mineras completada',date:'Feb 2025',url:'https://www.openstreetmap.org'},
-  {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'🤖',title:'Constitutional AI: construyendo sistemas de IA seguros para aplicaciones críticas en medio ambiente',date:'Ene 2025',url:'https://www.anthropic.com/research'},
-];
 
 function loadNews(){
   const grid=document.getElementById('news-grid');
@@ -1568,14 +1526,6 @@ function showToast(msg){
 }
 
 // ── EMOJI PICKER ──────────────────────────────────────────────────────────────
-const EMOJIS = [
-  '😊','😄','😂','🤣','😎','🥳','🎉','👏','🙌','💪',
-  '👍','👋','🤝','✅','❤️','🔥','⭐','💡','📌','📋',
-  '🗺️','🌍','🌿','🛰️','📐','📏','🔭','🏔️','🌊','🌳',
-  '⚠️','❌','✔️','🚀','💬','📊','📈','🖥️','💻','🔍',
-  '😅','🤔','😴','😤','🥱','😬','🤯','🥴','😵','🤩',
-  '☕','🍕','🎮','🏆','🥇','🎯','⏰','📅','🗓️','📁',
-];
 function toggleEmoji(){
   const panel=document.getElementById('emoji-panel');
   const open=panel.style.display==='flex';
