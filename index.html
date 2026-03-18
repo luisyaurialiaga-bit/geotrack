@@ -414,7 +414,6 @@ select.filter-sel{
 <body>
 
 <div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Alerta</div><div class="nb-msg" id="nb-msg"></div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
-<div class="nb-body"><div class="nb-title" id="nb-title">Alerta</div><div class="nb-msg" id="nb-msg"></div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
 <canvas id="canvas-bg"></canvas>
 
 <!-- LOGIN -->
@@ -467,6 +466,9 @@ select.filter-sel{
         <input class="login-inp" id="guest-name-inp" placeholder="Tu nombre (opcional)..." maxlength="30" onkeydown="if(event.key==='Enter')loginGuest()">
         <button class="btn primary" style="width:100%;padding:11px;margin-top:8px" onclick="loginGuest()">Entrar como invitado &rarr;</button>
       </div>
+    </div><!-- /.login-box -->
+  </div><!-- /.login-wrap -->
+</div><!-- /#login-screen -->
 
 <div id="guest-badge" style="display:none;position:fixed;bottom:10px;left:70px;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--text3);pointer-events:none">Modo invitado - Solo lectura</div>
 <!-- APP -->
@@ -486,8 +488,6 @@ select.filter-sel{
     <div class="hdr-right">
       <button id="notif-btn" onclick="toggleNotifications()" title="Alertas" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s">&#128276;</button>
       <button onclick="fireAlert('test',new Date().getHours(),0)" title="Probar alerta" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all 0.2s" onmouseover="this.style.borderColor='var(--em2)'" onmouseout="this.style.borderColor='var(--border)'">&#9654;</button>
-      <button id="notif-btn" onclick="toggleNotifications()" title="Alertas" style="width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center">&#128276;</button>
-      <button onclick="fireAlert('test',new Date().getHours(),0)" title="Probar alerta" style="width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--text3)">&#9654;</button>
       <div class="user-chip" onclick="showLogin()">
         <div class="chip-dot"></div>
         <span id="h-user">—</span>
