@@ -398,23 +398,24 @@ select.filter-sel{
 }
 .toast.show{opacity:1}
 .toast-icon{font-size:16px}
+.pin-key{background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:20px;font-weight:600;padding:14px;cursor:pointer;transition:all 0.15s;font-family:var(--mono)}
+.pin-key:hover{background:var(--card);border-color:var(--em2)}
+.pin-key:active{transform:scale(0.94)}
+#notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
+#notif-banner.show{transform:translateX(-50%) translateY(0);pointer-events:auto}
+.nb-icon{font-size:24px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px}
 
 #notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
 #notif-banner.show{transform:translateX(-50%) translateY(0);pointer-events:auto;animation:bPulse 2s ease-in-out 3}
-@keyframes bPulse{0%,100%{border-color:var(--em)}50%{border-color:var(--em3);box-shadow:0 8px 32px rgba(78,203,160,0.2)}}
-.nb-icon{font-size:26px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px;transition:color 0.15s}.nb-close:hover{color:var(--text)}
-
-#notif-banner{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-130px);z-index:200;min-width:320px;max-width:480px;background:var(--card);border:1px solid var(--em);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
-#notif-banner.show{transform:translateX(-50%) translateY(0);pointer-events:auto;animation:bPulse 2s ease-in-out 3}
-@keyframes bPulse{0%,100%{border-color:var(--em)}50%{border-color:var(--em3);box-shadow:0 8px 32px rgba(78,203,160,0.2)}}
-.nb-icon{font-size:26px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px}.nb-close:hover{color:var(--text)}
+@keyframes bPulse{0%,100%{border-color:var(--em)}50%{border-color:var(--em3);box-shadow:0 8px 32px rgba(78,203,160,0.15)}}
+.nb-icon{font-size:24px;flex-shrink:0}.nb-body{flex:1}.nb-title{font-size:13px;font-weight:600;color:var(--em3);margin-bottom:3px}.nb-msg{font-size:12px;color:var(--text2);line-height:1.4}.nb-close{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:0 4px}.nb-close:hover{color:var(--text)}
 </style>
 </head>
 <body>
 
-<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Hora de actualizar tu timesheet</div><div class="nb-msg" id="nb-msg">Ya registraste tu proyecto activo?</div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
-<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Hora de actualizar</div><div class="nb-msg" id="nb-msg">Registra tu proyecto activo</div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
-<canvas id="canvas-bg" ></canvas>
+<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Alerta</div><div class="nb-msg" id="nb-msg"></div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
+<div id="notif-banner"><div class="nb-icon">&#x23F0;</div><div class="nb-body"><div class="nb-title" id="nb-title">Alerta</div><div class="nb-msg" id="nb-msg"></div></div><button class="nb-close" onclick="closeBanner()">&#x2715;</button></div>
+<canvas id="canvas-bg"></canvas>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -425,37 +426,49 @@ select.filter-sel{
       <div class="login-sub">GEOMATICA / FCISA · Sistema de Gestión de Tiempo</div>
     </div>
     <div class="login-box">
-      <div class="login-lbl">Seleccionar operador</div>
-      <div class="users-list" id="users-list">
-        <div class="ucard" onclick="loginIdx(0)">
-          <div class="uc-av" style="background:#4ecba022;border-color:#4ecba0;color:#4ecba0">JY</div>
-          <div><div class="uc-name">Jose Yauri</div><div class="uc-role">Ing. Geógrafo · Geomática</div></div>
+      <div id="step-select">
+        <div class="login-lbl">Seleccionar operador</div>
+        <div class="users-list" id="users-list">
+          <div class="ucard" onclick="selectUser(0)"><div class="uc-av" style="background:#4ecba022;border-color:#4ecba0;color:#4ecba0">JY</div><div><div class="uc-name">Jose Yauri</div><div class="uc-role">Ing. Geografo</div></div></div>
+          <div class="ucard" onclick="selectUser(1)"><div class="uc-av" style="background:#6db8e822;border-color:#6db8e8;color:#6db8e8">ES</div><div><div class="uc-name">Elsa Sanez</div><div class="uc-role">Geografa</div></div></div>
+          <div class="ucard" onclick="selectUser(2)"><div class="uc-av" style="background:#c9a84c22;border-color:#c9a84c;color:#c9a84c">KG</div><div><div class="uc-name">Katherine Gabriel</div><div class="uc-role">Ing. Ambiental</div></div></div>
+          <div class="ucard" onclick="selectUser(3)"><div class="uc-av" style="background:#e07a5f22;border-color:#e07a5f;color:#e07a5f">JR</div><div><div class="uc-name">Jhojan Rivera</div><div class="uc-role">Ing. Ambiental</div></div></div>
+          <div class="ucard" onclick="selectUser(4)"><div class="uc-av" style="background:#9b89c422;border-color:#9b89c4;color:#9b89c4">DD</div><div><div class="uc-name">Daniel Davila</div><div class="uc-role">Ing. Ambiental</div></div></div>
         </div>
-        <div class="ucard" onclick="loginIdx(1)">
-          <div class="uc-av" style="background:#6db8e822;border-color:#6db8e8;color:#6db8e8">ES</div>
-          <div><div class="uc-name">Elsa Sanez</div><div class="uc-role">Geógrafa · Geomática</div></div>
+        <div class="login-or">acceso rapido</div>
+        <button class="btn" style="width:100%;padding:10px;font-size:13px" onclick="showGuestLogin()">&#128100; Ingresar como invitado</button>
+      </div>
+      <div id="step-pin" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+          <button onclick="backToSelect()" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:6px 10px;cursor:pointer">&larr;</button>
+          <div><div id="pin-user-name" style="font-size:15px;font-weight:600;color:var(--text)"></div><div style="font-size:11px;color:var(--text3)">Ingresa tu clave</div></div>
         </div>
-        <div class="ucard" onclick="loginIdx(2)">
-          <div class="uc-av" style="background:#c9a84c22;border-color:#c9a84c;color:#c9a84c">KG</div>
-          <div><div class="uc-name">Katherine Gabriel</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px" id="pin-dots">
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d0"></div>
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d1"></div>
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d2"></div>
+          <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s" id="d3"></div>
         </div>
-        <div class="ucard" onclick="loginIdx(3)">
-          <div class="uc-av" style="background:#e07a5f22;border-color:#e07a5f;color:#e07a5f">JR</div>
-          <div><div class="uc-name">Jhojan Rivera</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
-        </div>
-        <div class="ucard" onclick="loginIdx(4)">
-          <div class="uc-av" style="background:#9b89c422;border-color:#9b89c4;color:#9b89c4">DD</div>
-          <div><div class="uc-name">Daniel Dávila</div><div class="uc-role">Ing. Ambiental · Geomática</div></div>
+        <div id="pin-error" style="font-size:12px;color:#e07a5f;text-align:center;min-height:18px;margin-bottom:10px"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <button class="pin-key" onclick="pinPress(1)">1</button><button class="pin-key" onclick="pinPress(2)">2</button><button class="pin-key" onclick="pinPress(3)">3</button>
+          <button class="pin-key" onclick="pinPress(4)">4</button><button class="pin-key" onclick="pinPress(5)">5</button><button class="pin-key" onclick="pinPress(6)">6</button>
+          <button class="pin-key" onclick="pinPress(7)">7</button><button class="pin-key" onclick="pinPress(8)">8</button><button class="pin-key" onclick="pinPress(9)">9</button>
+          <button class="pin-key" onclick="pinClear()" style="font-size:11px;color:var(--text3)">&#9003;</button>
+          <button class="pin-key" onclick="pinPress(0)">0</button>
+          <button class="pin-key" onclick="pinConfirm()" style="background:var(--em);color:#000;font-size:13px">OK</button>
         </div>
       </div>
-      <div class="login-or">o ingresa tu nombre</div>
-      <input class="login-inp" id="login-inp" placeholder="Nombre completo..." maxlength="40"
-        onkeydown="if(event.key==='Enter')loginCustom()">
-      <button class="btn primary" style="width:100%;padding:11px" onclick="loginCustom()">Acceder al sistema →</button>
-    </div>
-  </div>
-</div>
+      <div id="step-guest" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+          <button onclick="backToSelect()" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:6px 10px;cursor:pointer">&larr;</button>
+          <div><div style="font-size:15px;font-weight:600;color:var(--text)">Acceso Invitado</div><div style="font-size:11px;color:var(--text3)">Solo visualizacion</div></div>
+        </div>
+        <input class="login-inp" id="guest-name-inp" placeholder="Tu nombre (opcional)..." maxlength="30" onkeydown="if(event.key==='Enter')loginGuest()">
+        <button class="btn primary" style="width:100%;padding:11px;margin-top:8px" onclick="loginGuest()">Entrar como invitado &rarr;</button>
+      </div>
 
+<div id="guest-badge" style="display:none;position:fixed;bottom:10px;left:70px;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--text3);pointer-events:none">Modo invitado - Solo lectura</div>
 <!-- APP -->
 <div id="app" style="display:none">
   <header>
@@ -471,8 +484,10 @@ select.filter-sel{
       <div id="h-date"></div>
     </div>
     <div class="hdr-right">
-      <button class="notif-btn" id="notif-btn" onclick="toggleNotifications()" title="Alertas cada hora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;position:relative">&#128276;</button>
-      <button onclick="fireAllAlerts(new Date().getHours())" title="Probar alerta ahora" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text3)" onmouseover="this.style.borderColor='var(--em2)';this.style.color='var(--em3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">&#9654;</button>
+      <button id="notif-btn" onclick="toggleNotifications()" title="Alertas" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s">&#128276;</button>
+      <button onclick="fireAlert('test',new Date().getHours(),0)" title="Probar alerta" style="width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all 0.2s" onmouseover="this.style.borderColor='var(--em2)'" onmouseout="this.style.borderColor='var(--border)'">&#9654;</button>
+      <button id="notif-btn" onclick="toggleNotifications()" title="Alertas" style="width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center">&#128276;</button>
+      <button onclick="fireAlert('test',new Date().getHours(),0)" title="Probar alerta" style="width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--text3)">&#9654;</button>
       <div class="user-chip" onclick="showLogin()">
         <div class="chip-dot"></div>
         <span id="h-user">—</span>
@@ -699,12 +714,8 @@ select.filter-sel{
       </div>
       <div class="rp-block" style="flex:1;overflow-y:auto;border-bottom:none">
         <div class="rp-lbl">Seleccionar proyecto</div>
-        <input id="proj-search" type="text" placeholder="🔍 Buscar proyecto..."
-          oninput="renderRPProjs(this.value)"
-          style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:8px 10px;outline:none;margin-bottom:6px;font-family:var(--mono);transition:border-color 0.2s"
-          onfocus="this.style.borderColor='var(--em2)'"
-          onblur="this.style.borderColor='var(--border)'">
-        <div id="rp-projs" style="flex:1;overflow-y:auto;max-height:340px"></div>
+        <input id="proj-search" type="text" placeholder="Buscar proyecto..." oninput="renderRPProjs(this.value)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;padding:7px 10px;outline:none;margin-bottom:6px;font-family:var(--mono);box-sizing:border-box">
+        <div id="rp-projs" style="overflow-y:auto;max-height:300px"></div>
         <button class="btn sm" style="width:100%;margin-top:8px" onclick="selectFolder()">📂 Cargar carpeta</button>
         <button class="btn sm" style="width:100%;margin-top:6px" onclick="openAddProj()">+ Agregar manual</button>
       </div>
@@ -788,22 +799,14 @@ let currentUser = null, projects = [], activeIdx = null, sessionStart = null, is
 
 const gs  = (k,d) => { try { const v=localStorage.getItem('gt2_'+k); return v?JSON.parse(v):d; } catch(e){return d;} };
 const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); } catch(e){} };
-var gridCache={};
 async function gg(u){
-  if(gridCache[u]) return gridCache[u];
-  var local=gs('grid_'+u,{});
-  if(Object.keys(local).length>0){ gridCache[u]=local; }
-  var data=await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
-  var result=(data && typeof data==='object') ? data : local;
-  gridCache[u]=result;
-  return result;
+  const data = await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
+  return (data && typeof data==='object') ? data : gs('grid_'+u,{});
 }
 async function sg(u,g){
-  gridCache[u]=g;
-  ss('grid_'+u,g);
-  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'),g);
+  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'), g);
+  ss('grid_'+u, g); // local backup
 }
-function clearGridCache(){ gridCache={}; }
 
 // ── PARTICLES ─────────────────────────────────────────────────────────────────
 (function initParticles(){
@@ -850,18 +853,76 @@ function clearGridCache(){ gridCache={}; }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function initLogin(){ /* buttons are static HTML */ }
-function loginIdx(i){ currentUser={...TEAM[i]}; finishLogin().catch(e=>{ console.error(e); alert('Error: '+e.message); }); }
-function loginCustom(){
-  const n=document.getElementById('login-inp').value.trim();
-  if(!n){ showToast('Ingresa tu nombre'); return; }
-  currentUser={name:n,role:'Operador',color:'#4ecba0',init:n.substring(0,2).toUpperCase()};
-  finishLogin();
+var PINS={'Jose Yauri':'1924','Elsa Sanez':'0920','Katherine Gabriel':'7536','Jhojan Rivera':'0509','Daniel Davila':'2304'};
+var pinBuffer='',pendingUserIdx=-1,isGuest=false;
+
+function selectUser(i){
+  pendingUserIdx=i;
+  var u=TEAM[i];
+  document.getElementById('step-select').style.display='none';
+  document.getElementById('step-pin').style.display='block';
+  document.getElementById('pin-user-name').textContent=u.name;
+  pinBuffer=''; updatePinDots();
+  document.getElementById('pin-error').textContent='';
 }
+function backToSelect(){
+  document.getElementById('step-select').style.display='block';
+  document.getElementById('step-pin').style.display='none';
+  document.getElementById('step-guest').style.display='none';
+  pinBuffer=''; pendingUserIdx=-1;
+}
+function showGuestLogin(){
+  document.getElementById('step-select').style.display='none';
+  document.getElementById('step-guest').style.display='block';
+  setTimeout(function(){var el=document.getElementById('guest-name-inp');if(el)el.focus();},100);
+}
+function pinPress(n){
+  if(pinBuffer.length>=4) return;
+  pinBuffer+=String(n); updatePinDots();
+  if(pinBuffer.length===4) setTimeout(pinConfirm,200);
+}
+function pinClear(){
+  pinBuffer=pinBuffer.slice(0,-1); updatePinDots();
+  document.getElementById('pin-error').textContent='';
+}
+function updatePinDots(){
+  for(var i=0;i<4;i++){
+    var d=document.getElementById('d'+i);
+    if(d){d.style.background=i<pinBuffer.length?'var(--em)':'transparent';d.style.borderColor=i<pinBuffer.length?'var(--em)':'var(--border)';}
+  }
+}
+function pinConfirm(){
+  if(pendingUserIdx<0) return;
+  var u=TEAM[pendingUserIdx];
+  var correct=PINS[u.name]||'1924';
+  if(pinBuffer===correct){
+    isGuest=false;
+    currentUser=Object.assign({},u);
+    finishLogin().catch(function(e){console.error(e);});
+  } else {
+    document.getElementById('pin-error').textContent='Clave incorrecta. Intenta de nuevo.';
+    pinBuffer=''; updatePinDots();
+    var pd=document.getElementById('pin-dots');
+    pd.style.transition='none';pd.style.transform='translateX(-8px)';
+    setTimeout(function(){pd.style.transform='translateX(8px)';},80);
+    setTimeout(function(){pd.style.transform='translateX(0)';},160);
+  }
+}
+function loginGuest(){
+  var n=document.getElementById('guest-name-inp').value.trim();
+  isGuest=true;
+  currentUser={name:n||'Invitado',role:'Visitante',color:'#888780',init:'IV'};
+  finishLogin().catch(function(e){console.error(e);});
+}
+function loginIdx(i){ selectUser(i); }
+function loginCustom(){ showGuestLogin(); }
+
+
 async function finishLogin(){
   try {
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='grid';
-    document.getElementById('h-user').textContent=currentUser.name;
+    document.getElementById('h-user').textContent=isGuest?('Inv: '+currentUser.name):currentUser.name;
     const fbProjs = await fbGet('/projects');
   projects = (fbProjs && Array.isArray(fbProjs)) ? fbProjs : gs('projects',[]);
     try{ await setOnline(); }catch(e){}
@@ -971,6 +1032,7 @@ function openAddProj(){ document.getElementById('add-proj-modal').classList.add(
 // ── PROJECT ACTIVATION ────────────────────────────────────────────────────────
 async function activateProj(i){
   if(!currentUser) return;
+  if(isGuest){showToast('Modo invitado: solo visualizacion');return;}
   if(activeIdx===i&&!isPaused) return;
   if(activeIdx!==null&&sessionStart) closeSession();
   activeIdx=i; isPaused=false; sessionStart=Date.now();
@@ -1008,38 +1070,15 @@ async function addActivity(code,day,hr){
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
 
 // ── RENDER RIGHT PANEL ────────────────────────────────────────────────────────
-function renderRPProjs(filter){
-  if(filter===undefined) filter='';
-  var el=document.getElementById('rp-projs');
-  if(!projects.length){
-    el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px">Sin proyectos. Carga carpeta o agrega manualmente.</div>';
-    return;
-  }
-  var q=filter.toLowerCase().trim();
-  var html=''; var count=0;
-  for(var i=0;i<projects.length;i++){
-    var p=projects[i];
-    if(q && p.code.toLowerCase().indexOf(q)===-1) continue;
-    var active=activeIdx===i?' active':'';
-    html+='<div class="rp-proj'+active+'" onclick="activateProj('+i+')">';
-    html+='<div class="rp-pdot" style="background:'+p.color+'"></div>';
-    html+='<div class="rp-pcode">'+hlMatch(p.code,q)+'</div>';
-    html+='</div>';
-    count++;
-  }
-  if(count===0){
-    html='<div style="font-size:12px;color:var(--text3);padding:8px">Sin resultados para "'+filter+'"</div>';
-  }
-  el.innerHTML=html;
+function renderRPProjs(){
+  const el=document.getElementById('rp-projs');
+  if(!projects.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>'; return; }
+  el.innerHTML=projects.map((p,i)=>`
+    <div class="rp-proj ${activeIdx===i?'active':''}" onclick="activateProj(${i})">
+      <div class="rp-pdot" style="background:${p.color}"></div>
+      <div class="rp-pcode">${p.code}</div>
+    </div>`).join('');
 }
-
-function hlMatch(text,q){
-  if(!q) return text;
-  var idx=text.toLowerCase().indexOf(q);
-  if(idx===-1) return text;
-  return text.slice(0,idx)+'<span style="background:rgba(201,168,76,0.35);color:var(--gold2);border-radius:2px">'+text.slice(idx,idx+q.length)+'</span>'+text.slice(idx+q.length);
-}
-
 function renderMiniLog(){
   if(!currentUser) return;
   const log=gs('log_'+currentUser.name,[]);
@@ -1076,6 +1115,7 @@ async function renderTS(){
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 async function openModal(day,hr,user){
+  if(isGuest){showToast('Modo invitado: solo visualizacion');return;}
   editCell={day,hr,user};
   document.getElementById('modal-desc').textContent=`${user} · ${day} · ${hr}`;
   const g=await gg(user); document.getElementById('modal-inp').value=g[day]&&g[day][hr]?g[day][hr]:'';
@@ -1161,6 +1201,60 @@ async function renderStats(){
 }
 
 // ── PROJECTS PAGE ──────────────────────────────────────────────────────────────
+
+async function renderProjects(){
+  var pm={};
+  for(var ui=0;ui<TEAM.length;ui++){
+    var g=await gg(TEAM[ui].name);
+    DAYS.forEach(function(day){
+      if(!g[day]) return;
+      Object.values(g[day]).forEach(function(v){if(v) pm[v]=(pm[v]||0)+1;});
+    });
+  }
+  var activeCodes=Object.keys(pm);
+  if(!activeCodes.length){
+    document.getElementById('proj-bars').innerHTML='<div style="font-size:13px;color:var(--text3)">Sin proyectos esta semana. Registra horas en el timesheet.</div>';
+    document.getElementById('proj-list').innerHTML='';
+    return;
+  }
+  activeCodes.sort(function(a,b){return pm[b]-pm[a];});
+  var maxH=Math.max(1,...activeCodes.map(function(c){return pm[c];}));
+  var pcols=['#4ecba0','#6db8e8','#c9a84c','#e07a5f','#9b89c4','#7ecba0'];
+  var barsHtml='',listHtml='';
+  activeCodes.forEach(function(code,ci){
+    var pidx=projects.findIndex(function(p){return p.code===code;});
+    var color=pidx>=0?projects[pidx].color:pcols[ci%pcols.length];
+    var h=pm[code]; var pct=Math.round(h/maxH*100);
+    barsHtml+='<div class="bar-row"><div class="bar-lbl" style="color:'+color+'">'+code.substring(0,22)+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:linear-gradient(to right,'+color+'88,'+color+')"></div></div><div class="bar-val">'+h+'h</div></div>';
+    var act=pidx>=0&&activeIdx===pidx?' active':'';
+    listHtml+='<div class="proj-item'+act+'" onclick="activateProj('+pidx+')"><div class="proj-dot" style="background:'+color+'"></div><div class="proj-code">'+code+'</div><div class="proj-hrs">'+h+'h</div></div>';
+  });
+  document.getElementById('proj-bars').innerHTML=barsHtml;
+  document.getElementById('proj-list').innerHTML=listHtml;
+}
+
+async function renderStats(){
+  let total=0; const pm={}, pp={};
+  TEAM.forEach(u=>{ pp[u.name]=0; });
+  for(const u of TEAM){
+    const g=await gg(u.name);
+    DAYS.forEach(day=>{ if(!g[day])return; Object.entries(g[day]).forEach(([,v])=>{ if(v){total++;pp[u.name]=(pp[u.name]||0)+1;pm[v]=(pm[v]||0)+1;} }); });
+  }
+  document.getElementById('es-total').textContent=total+'h';
+  const tpj=Object.entries(pm).sort((a,b)=>b[1]-a[1])[0];
+  const tpe=Object.entries(pp).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('es-tp').textContent=tpj?tpj[0].substring(0,20):'—';
+  document.getElementById('es-pp').textContent=tpe&&tpe[1]>0?tpe[0]:'—';
+  const maxP=Math.max(1,...Object.values(pp));
+  document.getElementById('person-bars').innerHTML=Object.entries(pp).map(([n,h])=>`
+    <div class="bar-row"><div class="bar-lbl">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(h/maxP*100)}%"></div></div><div class="bar-val">${h}h</div></div>`).join('');
+  const sortedPm=Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxPm=Math.max(1,...sortedPm.map(x=>x[1]));
+  document.getElementById('proj-bars2').innerHTML=sortedPm.map(([c,h])=>`
+    <div class="bar-row"><div class="bar-lbl">${c.substring(0,22)}</div><div class="bar-track"><div class="bar-fill gold" style="width:${Math.round(h/maxPm*100)}%"></div></div><div class="bar-val">${h}h</div></div>`).join('');
+}
+
+// ── PROJECTS PAGE ──────────────────────────────────────────────────────────────
 async function renderProjects(){
   const pm={};
   projects.forEach(p=>{ pm[p.code]=0; });
@@ -1205,6 +1299,7 @@ async function renderChat(){
 }
 async function sendChat(){
   if(!currentUser) return;
+  if(isGuest){showToast('Modo invitado: no puedes escribir en el chat');return;}
   const inp=document.getElementById('chat-inp');
   const text=inp.value.trim();
   if(!text) return;
@@ -1306,101 +1401,45 @@ async function sendAI(){
 function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── NEWS ──────────────────────────────────────────────────────────────────────
-const NEWS_ALL=[
-  // Lunes
-  [
-    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: razonamiento espacial avanzado para proyectos ambientales',date:'2025',url:'https://www.anthropic.com/news'},
-    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Landsat 9 — nuevos datasets para monitoreo de cobertura vegetal en Sudamérica',date:'2025',url:'https://earthdata.nasa.gov'},
-    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'QGIS 3.36 — mejoras de rendimiento y nuevos plugins de análisis espacial',date:'2025',url:'https://qgis.org'},
-    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para EIA utilizando tecnología SIG y teledetección',date:'2025',url:'https://www.gob.pe/minam'},
-  ],
-  // Martes
-  [
-    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3 — herramientas de análisis geoespacial con inteligencia artificial',date:'2025',url:'https://www.esri.com/arcgis-blog'},
-    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Sentinel-2 actualizado con cobertura completa para Perú y Latinoamérica',date:'2025',url:'https://earthengine.google.com'},
-    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Constitutional AI: sistemas seguros para aplicaciones críticas en medio ambiente',date:'2025',url:'https://www.anthropic.com/research'},
-    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Actualización de datos cartográficos para Lima Metropolitana y zonas mineras',date:'2025',url:'https://www.openstreetmap.org'},
-  ],
-  // Miércoles
-  [
-    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'MODIS Terra — análisis de cambio de uso de suelo en cuencas andinas',date:'2025',url:'https://earthdata.nasa.gov'},
-    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'SEIA digital: modernización del sistema de evaluación de impacto ambiental',date:'2025',url:'https://www.gob.pe/minam'},
-    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Modelos de IA para detección de cambios en imágenes satelitales',date:'2025',url:'https://www.anthropic.com/news'},
-    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Story Maps para comunicar estudios de impacto ambiental al público',date:'2025',url:'https://www.esri.com'},
-  ],
-  // Jueves
-  [
-    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Análisis de deforestación en la Amazonía con machine learning y GEE',date:'2025',url:'https://earthengine.google.com'},
-    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Plugin QGIS para generación automática de mapas de vulnerabilidad ambiental',date:'2025',url:'https://qgis.org'},
-    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'LLMs aplicados a la interpretación de normativa ambiental peruana',date:'2025',url:'https://www.anthropic.com/research'},
-    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Mapeo colaborativo de áreas naturales protegidas en Perú con OSM',date:'2025',url:'https://www.openstreetmap.org'},
-  ],
-  // Viernes
-  [
-    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Inventario nacional de glaciares: avances con teledetección y SIG',date:'2025',url:'https://www.gob.pe/minam'},
-    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Automatización de informes ambientales con modelos de lenguaje',date:'2025',url:'https://www.anthropic.com/news'},
-    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'SAR Sentinel-1 para mapeo de inundaciones en zonas costeras peruanas',date:'2025',url:'https://earthdata.nasa.gov'},
-    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Dashboards ambientales en tiempo real con ArcGIS Online',date:'2025',url:'https://www.esri.com'},
-  ],
-  // Sábado
-  [
-    {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Tutorial: monitoreo de calidad del agua con índices espectrales en GEE',date:'2025',url:'https://earthengine.google.com'},
-    {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Automatización de cartografía temática con PyQGIS y modelos de procesamiento',date:'2025',url:'https://qgis.org'},
-    {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Interpretabilidad en IA: avances para aplicaciones críticas en ciencias ambientales',date:'2025',url:'https://www.anthropic.com/research'},
-    {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'&#128205;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Humanitario OSM: cartografía de zonas de riesgo en ciudades andinas',date:'2025',url:'https://www.openstreetmap.org'},
-  ],
-  // Domingo
-  [
-    {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'&#128752;',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Imágenes VIIRS de incendios forestales activos en América del Sur',date:'2025',url:'https://earthdata.nasa.gov'},
-    {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'&#127807;',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Programa nacional de reforestación: avances 2025 con monitoreo satelital',date:'2025',url:'https://www.gob.pe/minam'},
-    {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'&#129302;',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'IA en gestión ambiental: casos de éxito en Latinoamérica',date:'2025',url:'https://www.anthropic.com/news'},
-    {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'&#128506;',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Field Maps para trabajo de campo en estudios de impacto ambiental',date:'2025',url:'https://www.esri.com'},
-  ],
+const NEWS=[
+  {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'🤖',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: nuevas capacidades de análisis y razonamiento espacial para proyectos ambientales',date:'Mar 2025',url:'https://www.anthropic.com/news'},
+  {src:'ESRI / ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3 — nuevas herramientas de análisis geoespacial potenciadas con inteligencia artificial',date:'Feb 2025',url:'https://www.esri.com/arcgis-blog'},
+  {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Nuevos datasets Landsat 9 disponibles para monitoreo ambiental y cobertura vegetal en Sudamérica',date:'Mar 2025',url:'https://earthdata.nasa.gov'},
+  {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'🌿',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para estudios de impacto ambiental utilizando tecnología SIG y teledetección',date:'Mar 2025',url:'https://www.gob.pe/minam'},
+  {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'🗺️',title:'QGIS 3.36 Maidenhead — mejoras de rendimiento y nuevos plugins de análisis espacial',date:'Feb 2025',url:'https://qgis.org'},
+  {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'🛰️',title:'Sentinel-2 colecciones actualizadas con cobertura completa para Perú y Latinoamérica',date:'Mar 2025',url:'https://earthengine.google.com'},
+  {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'📍',title:'Actualización de datos cartográficos para Lima Metropolitana y regiones mineras completada',date:'Feb 2025',url:'https://www.openstreetmap.org'},
+  {src:'Anthropic Research',tag:'IA',tagColor:'#4ecba0',icon:'🤖',title:'Constitutional AI: construyendo sistemas de IA seguros para aplicaciones críticas en medio ambiente',date:'Ene 2025',url:'https://www.anthropic.com/research'},
 ];
 
-
 function loadNews(){
-  var grid=document.getElementById('news-grid');
-  var list=document.getElementById('news-list');
-  if(!grid||!list) return;
-  grid.innerHTML='<div style="padding:20px;color:var(--text3);grid-column:span 2">Cargando...</div>';
-  var dayIdx=new Date().getDay();
-  var NEWS=NEWS_ALL[dayIdx]||NEWS_ALL[0];
-  var days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
-  setTimeout(function(){
-    var html='';
-    for(var i=0;i<NEWS.length;i++){
-      var n=NEWS[i];
-      var imgPart='';
-      if(n.img){
-        imgPart='<img src="'+n.img+'" class="news-img" data-ph="'+n.icon+'">';
-      } else {
-        imgPart='<div class="news-img-placeholder">'+n.icon+'</div>';
-      }
-      html+='<div class="news-card" data-url="'+n.url+'">';
-      html+=imgPart;
-      html+='<div class="news-body">';
-      html+='<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.tag+'</div>';
-      html+='<div class="news-h">'+n.title+'</div>';
-      html+='<div class="news-meta"><span class="news-src2">'+n.src+'</span><span class="news-dt">'+days[dayIdx]+'</span></div>';
-      html+='</div></div>';
-    }
-    grid.innerHTML=html;
-    list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px 0">Noticias rotadas cada dia de la semana</div>';
-    grid.querySelectorAll('.news-card').forEach(function(card){
-      card.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
-      var img=card.querySelector('img');
-      if(img){
-        img.onerror=function(){
-          this.style.display='none';
-          var ph=document.createElement('div');
-          ph.className='news-img-placeholder';
-          ph.textContent=this.getAttribute('data-ph')||'';
-          this.parentNode.insertBefore(ph,this);
-        };
-      }
-    });
-  },400);
+  const grid=document.getElementById('news-grid');
+  const list=document.getElementById('news-list');
+  grid.innerHTML='<div class="news-loading" style="grid-column:span 2">🌿 Cargando noticias...</div>';
+  setTimeout(()=>{
+    const featured=NEWS.slice(0,4);
+    const rest=NEWS.slice(4);
+    grid.innerHTML=featured.map(n=>`
+      <div class="news-card" onclick="window.open('${n.url}','_blank')">
+        ${n.img
+          ? `<img src="${n.img}" class="news-img" alt="${n.src}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="news-img-placeholder" style="${n.img?'display:none':'display:flex'}">${n.icon}</div>
+        <div class="news-body">
+          <div class="news-tag" style="background:${n.tagColor}22;color:${n.tagColor};border:1px solid ${n.tagColor}44">${n.tag}</div>
+          <div class="news-h">${n.title}</div>
+          <div class="news-meta">
+            <span class="news-src2">${n.src}</span>
+            <span class="news-dt">${n.date}</span>
+          </div>
+        </div>
+      </div>`).join('');
+    list.innerHTML=rest.map(n=>`
+      <div class="news-list-item" onclick="window.open('${n.url}','_blank')">
+        <div class="news-list-icon" style="background:${n.tagColor}22;color:${n.tagColor}">${n.icon}</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.4">${n.title}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${n.src} · ${n.date}</div></div>
+      </div>`).join('');
+  },500);
 }
 
 // ── WORKLOAD ──────────────────────────────────────────────────────────────────
@@ -1623,32 +1662,21 @@ function gameStart(){
     'EPSG:4326','EPSG:32718','DATUM:WGS','GRS80','NAD83',
   ];
 
-  function makeAsteroidShape(r){
-    var pts=[],n=8+Math.floor(Math.random()*4);
-    for(var i=0;i<n;i++){
-      var a=(i/n)*Math.PI*2,jr=r*(0.65+Math.random()*0.38);
-      pts.push({x:Math.cos(a)*jr,y:Math.sin(a)*jr});
-    }
-    return pts;
-  }
   function spawnCoord(){
-    var isRed=Math.random()<0.2;
-    var r=22+Math.random()*12;
+    const isRed = Math.random() < 0.2;
     GS.coords.push({
-      x:r+Math.random()*(W-r*2),y:-r*2,
-      vy:(0.7+Math.random()*0.7+GS.level*0.12)*(isRed?1.5:1),
-      text:coordPool[Math.floor(Math.random()*coordPool.length)],
-      color:isRed?'#e07a5f':'#4ecba0',
-      pts:isRed?30:10,r:r,
-      rot:0,rotSpeed:(Math.random()-0.5)*0.025,
-      isRed:isRed,pts_shape:makeAsteroidShape(r),
-      w:r*2,h:r*2,
+      x: 20 + Math.random()*(W-40),
+      y: -20,
+      vy: (0.8 + Math.random()*0.8 + GS.level*0.15) * (isRed?1.6:1),
+      text: coordPool[Math.floor(Math.random()*coordPool.length)],
+      color: isRed ? '#e07a5f' : '#4ecba0',
+      pts: isRed ? 30 : 10,
+      w: 72, h: 18,
     });
   }
 
   function shoot(x){
     GS.bullets.push({ x: GS.ship.x, y: GS.ship.y-10, vy:-9, r:4 });
-    playLaser();
   }
 
   // Input
@@ -1679,35 +1707,6 @@ function gameStart(){
     document.getElementById('score-display').textContent = GS.score;
     document.getElementById('level-display').textContent = GS.level;
     document.getElementById('lives-display').textContent = '❤️'.repeat(GS.lives);
-  }
-
-  function playLaser(){
-    try{
-      var ac=new(window.AudioContext||window.webkitAudioContext)();
-      var o=ac.createOscillator(), g=ac.createGain();
-      o.connect(g); g.connect(ac.destination);
-      o.type='sawtooth'; o.frequency.setValueAtTime(880,ac.currentTime);
-      o.frequency.exponentialRampToValueAtTime(220,ac.currentTime+0.12);
-      g.gain.setValueAtTime(0.15,ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);
-      o.start(ac.currentTime); o.stop(ac.currentTime+0.13);
-    }catch(e){}
-  }
-  function playExplosion(pts){
-    try{
-      var ac=new(window.AudioContext||window.webkitAudioContext)();
-      var buf=ac.createBuffer(1,ac.sampleRate*0.3,ac.sampleRate);
-      var data=buf.getChannelData(0);
-      for(var i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5);
-      var src=ac.createBufferSource(), g=ac.createGain(), filt=ac.createBiquadFilter();
-      src.buffer=buf; filt.type='bandpass';
-      filt.frequency.value = pts>=30 ? 180 : 280;
-      filt.Q.value=0.8;
-      src.connect(filt); filt.connect(g); g.connect(ac.destination);
-      g.gain.setValueAtTime(pts>=30?0.4:0.25, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+0.3);
-      src.start(ac.currentTime); src.stop(ac.currentTime+0.3);
-    }catch(e){}
   }
 
   function gameOver(){
@@ -1759,11 +1758,11 @@ function gameStart(){
     }
 
     // Move coords
-    GS.coords = GS.coords.filter(function(c){
+    GS.coords = GS.coords.filter(c=>{
       c.y += c.vy;
-      if(c.y > H+c.r*2){
+      if(c.y > H+10){
         GS.lives--;
-        addParticles(c.x, H-10, '#e07a5f', 10);
+        addParticles(c.x, H-10, '#e07a5f', 8);
         if(GS.lives<=0){ gameOver(); return false; }
         updateScore();
         return false;
@@ -1777,11 +1776,10 @@ function gameStart(){
     // Collision
     GS.bullets = GS.bullets.filter(b=>{
       let hit=false;
-      GS.coords = GS.coords.filter(function(c){
-        var dist=Math.sqrt((b.x-c.x)*(b.x-c.x)+(b.y-c.y)*(b.y-c.y));
-        if(!hit && dist < c.r+b.r){
+      GS.coords = GS.coords.filter(c=>{
+        if(!hit && Math.abs(b.x-c.x)<c.w/2 && Math.abs(b.y-c.y)<c.h){
           hit=true; GS.score+=c.pts;
-          addParticles(c.x,c.y,c.color,16);
+          addParticles(c.x,c.y,c.color,12);
           updateScore();
           return false;
         }
@@ -1804,57 +1802,28 @@ function gameStart(){
     for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
     for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
 
-    // Asteroids with coord text
-    GS.coords.forEach(function(c){
+    // Coords
+    GS.coords.forEach(c=>{
       ctx.save();
-      ctx.translate(c.x, c.y);
-      c.rot = (c.rot||0) + c.rotSpeed;
-      ctx.rotate(c.rot);
-      // Asteroid shape (irregular polygon)
-      var pts=c.pts_shape;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x,pts[0].y);
-      for(var pi=1;pi<pts.length;pi++) ctx.lineTo(pts[pi].x,pts[pi].y);
-      ctx.closePath();
-      ctx.fillStyle=c.isRed?'#4a1a0a':'#2a2318';
-      ctx.fill();
-      ctx.strokeStyle=c.color+'99';
-      ctx.lineWidth=1.5;
-      ctx.stroke();
-      // Surface cracks
-      ctx.strokeStyle=c.color+'44';ctx.lineWidth=0.7;
-      ctx.beginPath();ctx.moveTo(-c.r*0.3,-c.r*0.5);ctx.lineTo(c.r*0.1,c.r*0.1);ctx.lineTo(-c.r*0.2,c.r*0.4);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(c.r*0.2,-c.r*0.2);ctx.lineTo(c.r*0.5,c.r*0.3);ctx.stroke();
-      // Glow
-      ctx.restore();
-      ctx.save();
-      ctx.translate(c.x,c.y);
-      var g=ctx.createRadialGradient(0,0,c.r*0.5,0,0,c.r*1.4);
-      g.addColorStop(0,c.color+'22');g.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(0,0,c.r*1.4,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-      // Coord text (always upright)
+      ctx.strokeStyle=c.color+'88';
+      ctx.fillStyle=c.color+'22';
+      ctx.lineWidth=1;
+      const rx=c.x-c.w/2, ry=c.y-c.h/2;
+      ctx.beginPath();ctx.roundRect(rx,ry,c.w,c.h,4);
+      ctx.fill();ctx.stroke();
       ctx.fillStyle=c.color;
-      ctx.font='bold 9px Consolas,monospace';
+      ctx.font='10px Consolas,monospace';
       ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.shadowBlur=4;ctx.shadowColor=c.color;
-      ctx.fillText(c.text,0,0);
-      ctx.shadowBlur=0;
+      ctx.fillText(c.text,c.x,c.y+4);
       ctx.restore();
     });
 
-    // Laser bullets
-    GS.bullets.forEach(function(b){
+    // Bullets
+    GS.bullets.forEach(b=>{
       ctx.save();
-      // Laser beam
-      var lg=ctx.createLinearGradient(b.x,b.y+8,b.x,b.y-12);
-      lg.addColorStop(0,'transparent');lg.addColorStop(0.4,'#4ecba0');lg.addColorStop(1,'#ffffff');
-      ctx.strokeStyle=lg;ctx.lineWidth=3;ctx.lineCap='round';
-      ctx.beginPath();ctx.moveTo(b.x,b.y+6);ctx.lineTo(b.x,b.y-10);ctx.stroke();
-      // Glow
-      ctx.shadowBlur=8;ctx.shadowColor='#4ecba0';
-      ctx.strokeStyle='rgba(78,203,160,0.4)';ctx.lineWidth=6;
-      ctx.beginPath();ctx.moveTo(b.x,b.y+4);ctx.lineTo(b.x,b.y-8);ctx.stroke();
+      ctx.fillStyle='#c9a84c';
+      ctx.shadowBlur=8;ctx.shadowColor='#c9a84c';
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
       ctx.restore();
     });
 
@@ -1867,44 +1836,15 @@ function gameStart(){
       ctx.restore();
     });
 
-    // Ship (spaceship)
+    // Ship (triangle)
     ctx.save();
-    ctx.translate(GS.ship.x, GS.ship.y);
-    ctx.shadowBlur=14;ctx.shadowColor='#4ecba0';
-    // Engine glow
-    ctx.fillStyle='rgba(78,203,160,0.3)';
-    ctx.beginPath();ctx.ellipse(0,14,8,6,0,0,Math.PI*2);ctx.fill();
-    // Engine flame flicker
-    var flicker=0.7+0.3*Math.sin(GS.frameCount*0.3);
-    ctx.fillStyle='rgba(201,168,76,'+flicker+')';
-    ctx.beginPath();ctx.moveTo(-5,12);ctx.lineTo(0,22+flicker*6);ctx.lineTo(5,12);ctx.closePath();ctx.fill();
-    ctx.fillStyle='rgba(255,220,100,'+flicker*0.7+')';
-    ctx.beginPath();ctx.moveTo(-2,12);ctx.lineTo(0,18+flicker*4);ctx.lineTo(2,12);ctx.closePath();ctx.fill();
-    // Main body
-    ctx.fillStyle='#2d6b50';
-    ctx.beginPath();
-    ctx.moveTo(0,-18);ctx.lineTo(10,0);ctx.lineTo(8,12);ctx.lineTo(-8,12);ctx.lineTo(-10,0);
-    ctx.closePath();ctx.fill();
     ctx.fillStyle='#4ecba0';
+    ctx.shadowBlur=12;ctx.shadowColor='#4ecba0';
     ctx.beginPath();
-    ctx.moveTo(0,-18);ctx.lineTo(8,0);ctx.lineTo(7,10);ctx.lineTo(-7,10);ctx.lineTo(-8,0);
+    ctx.moveTo(GS.ship.x, GS.ship.y-GS.ship.h/2);
+    ctx.lineTo(GS.ship.x-GS.ship.w/2, GS.ship.y+GS.ship.h/2);
+    ctx.lineTo(GS.ship.x+GS.ship.w/2, GS.ship.y+GS.ship.h/2);
     ctx.closePath();ctx.fill();
-    // Cockpit
-    ctx.fillStyle='rgba(100,220,255,0.85)';
-    ctx.beginPath();ctx.ellipse(0,-6,4,5,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='rgba(150,240,255,0.5)';ctx.lineWidth=0.8;ctx.stroke();
-    // Wings
-    ctx.fillStyle='#3aaa85';
-    ctx.beginPath();ctx.moveTo(-8,4);ctx.lineTo(-18,14);ctx.lineTo(-14,12);ctx.lineTo(-8,10);ctx.closePath();ctx.fill();
-    ctx.beginPath();ctx.moveTo(8,4);ctx.lineTo(18,14);ctx.lineTo(14,12);ctx.lineTo(8,10);ctx.closePath();ctx.fill();
-    // Wing accent
-    ctx.fillStyle='#4ecba0';
-    ctx.beginPath();ctx.moveTo(-8,5);ctx.lineTo(-16,13);ctx.lineTo(-13,12);ctx.lineTo(-8,9);ctx.closePath();ctx.fill();
-    ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(16,13);ctx.lineTo(13,12);ctx.lineTo(8,9);ctx.closePath();ctx.fill();
-    // Engine nozzles
-    ctx.fillStyle='#1d5a40';
-    ctx.beginPath();ctx.roundRect(-7,10,6,5,2);ctx.fill();
-    ctx.beginPath();ctx.roundRect(1,10,6,5,2);ctx.fill();
     ctx.restore();
 
     // HUD
@@ -1973,12 +1913,217 @@ async function renderAll(){ renderRPProjs(); await renderDashboard(); renderTS()
 initLogin();
 setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').classList.contains('active')) await renderChat(); await renderDashboard(); await updateStats(); } },10000);
 
-// ── SPACE BACKGROUND ──────────────────────────────────────────────────────────
+// -- GRID CACHE --
+var gridCache={};
+async function gg(u){
+  if(gridCache[u]) return gridCache[u];
+  var local=gs('grid_'+u,{});
+  if(Object.keys(local).length>0) gridCache[u]=local;
+  var data=await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
+  var result=(data&&typeof data==='object')?data:local;
+  gridCache[u]=result; return result;
+}
+async function sg(u,g){
+  gridCache[u]=g; ss('grid_'+u,g);
+  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'),g);
+}
+
+// -- RENDER RP WITH SEARCH --
+function renderRPProjs(filter){
+  if(filter===undefined) filter='';
+  var el=document.getElementById('rp-projs');
+  if(!projects.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px">Sin proyectos</div>';return;}
+  var q=filter.toLowerCase().trim(),html='',count=0;
+  for(var i=0;i<projects.length;i++){
+    var p=projects[i];
+    if(q&&p.code.toLowerCase().indexOf(q)===-1) continue;
+    var act=activeIdx===i?' active':'';
+    var label=q?hlMatch(p.code,q):p.code;
+    html+='<div class="rp-proj'+act+'" onclick="activateProj('+i+')">'
+      +'<div class="rp-pdot" style="background:'+p.color+'"></div>'
+      +'<div class="rp-pcode">'+label+'</div></div>';
+    count++;
+  }
+  if(!count) html='<div style="font-size:11px;color:var(--text3);padding:6px">Sin resultados</div>';
+  el.innerHTML=html;
+}
+function hlMatch(t,q){
+  var i=t.toLowerCase().indexOf(q);
+  if(i===-1) return t;
+  return t.slice(0,i)+'<span style="background:rgba(201,168,76,0.35);color:var(--gold2)">'+t.slice(i,i+q.length)+'</span>'+t.slice(i+q.length);
+}
+
+// -- FIREBASE HELPERS WITH RETRY --
+var FB='https://geotrack-fcisa-default-rtdb.firebaseio.com';
+var FB_H={'Content-Type':'application/json'};
+async function fbFetch(url,opts,retries){
+  if(retries===undefined) retries=2;
+  for(var i=0;i<=retries;i++){
+    try{
+      var r=await Promise.race([fetch(url,opts),new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},5000)})]);
+      return r;
+    }catch(e){if(i===retries) return null; await new Promise(function(r){setTimeout(r,600*(i+1));});}
+  }
+  return null;
+}
+async function fbGet(path){var r=await fbFetch(FB+path+'.json');if(!r||!r.ok) return null;try{return await r.json();}catch(e){return null;}}
+async function fbSet(path,data){var r=await fbFetch(FB+path+'.json',{method:'PUT',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
+async function fbPush(path,data){var r=await fbFetch(FB+path+'.json',{method:'POST',headers:FB_H,body:JSON.stringify(data)});return r&&r.ok;}
+var FIREBASE_URL=FB;
+
+// -- NOTIFICATIONS --
+var notifEnabled=false,notifInterval=null,titleBlinkInt=null,bannerTO=null;
+var ORIG_TITLE='GEOTRACK - GEOMATICA/FCISA';
+var lastChatId=0,chatPollInterval=null;
+
+async function toggleNotifications(){
+  var btn=document.getElementById('notif-btn');
+  if(!notifEnabled){
+    notifEnabled=true;
+    if(btn) btn.style.borderColor='var(--em)';
+    if('Notification' in window&&Notification.permission==='default') await Notification.requestPermission();
+    startNotifScheduler(); startChatPoller();
+    showToast('Alertas activadas - 15 min sin proyecto, 1h con proyecto');
+    ss('notif_enabled',true);
+  } else {
+    notifEnabled=false;
+    if(btn) btn.style.borderColor='var(--border)';
+    if(notifInterval){clearInterval(notifInterval);notifInterval=null;}
+    if(chatPollInterval){clearInterval(chatPollInterval);chatPollInterval=null;}
+    stopTitleBlink(); ss('notif_enabled',false); showToast('Alertas desactivadas');
+  }
+}
+function startNotifScheduler(){
+  if(notifInterval) clearInterval(notifInterval);
+  notifInterval=setInterval(function(){
+    if(!notifEnabled) return;
+    var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+    if(h<9||h>17) return;
+    var hasPrj=activeIdx!==null&&projects[activeIdx];
+    if(!hasPrj&&(m===0||m===15||m===30||m===45)&&s<31) fireAlert('sin',h,m);
+    if(hasPrj&&m===0&&s<31) fireAlert('con',h,m);
+  },30000);
+}
+function fireAlert(type,h,m){
+  if(h===undefined) h=new Date().getHours();
+  if(m===undefined) m=new Date().getMinutes();
+  var h12=h>12?h-12:(h===0?12:h);
+  var ampm=h>=12?'PM':'AM';
+  var minStr=(m&&m!==0)?':'+String(m).padStart(2,'0'):'';
+  var title,msg;
+  if(type==='sin'||type==='test'){
+    title='Sin proyecto activo - '+h12+minStr+' '+ampm;
+    msg='Llevas tiempo sin registrar proyecto. En que estas trabajando?';
+  } else {
+    var proj=projects[activeIdx]?projects[activeIdx].code:'';
+    title='Actualiza tu timesheet - '+h12+':00 '+ampm;
+    msg='Proyecto: '+proj.substring(0,28)+'. Ya registraste esta hora?';
+  }
+  if('Notification' in window&&Notification.permission==='granted'){
+    try{var n=new Notification(title,{body:msg,tag:'gt-alert'});setTimeout(function(){n.close();},8000);}catch(e){}
+  }
+  showBanner(title,msg,type==='sin'||type==='test'?'warning':'info');
+  startTitleBlink(h12+minStr,ampm,'alert');
+  playBeep();
+}
+function startChatPoller(){
+  if(chatPollInterval) clearInterval(chatPollInterval);
+  chatPollInterval=setInterval(async function(){
+    if(!notifEnabled||!currentUser) return;
+    try{
+      var data=await fbGet('/chat');
+      if(!data||typeof data!=='object') return;
+      var msgs=Object.values(data).sort(function(a,b){return (a.id||0)-(b.id||0);});
+      if(!msgs.length) return;
+      var latest=msgs[msgs.length-1];
+      if(!lastChatId&&latest.id){lastChatId=latest.id;return;}
+      if(latest.id&&latest.id>lastChatId&&latest.user!==currentUser.name){
+        lastChatId=latest.id; notifyChatMsg(latest);
+      }
+    }catch(e){}
+  },60000);
+}
+function notifyChatMsg(msg){
+  var title=msg.user+' en el chat';
+  var text=msg.text.substring(0,80)+(msg.text.length>80?'...':'');
+  if('Notification' in window&&Notification.permission==='granted'){
+    try{var n=new Notification('Chat: '+title,{body:text,tag:'gt-chat'});n.onclick=function(){window.focus();n.close();};setTimeout(function(){n.close();},6000);}catch(e){}
+  }
+  showBanner('Chat: '+title,text,'chat');
+  startTitleBlink(msg.user,'','chat');
+  playChatSound();
+}
+function playChatSound(){
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    [880,1100].forEach(function(f,i){
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
+      var t=ac.currentTime+i*0.12;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.08,t+0.04);g.gain.linearRampToValueAtTime(0,t+0.18);
+      o.start(t);o.stop(t+0.2);
+    });
+  }catch(e){}
+}
+function showBanner(title,msg,type){
+  var b=document.getElementById('notif-banner');
+  if(!b) return;
+  document.getElementById('nb-title').textContent=title;
+  document.getElementById('nb-msg').textContent=msg;
+  var cols={warning:'var(--amber)',info:'var(--em)',chat:'#6db8e8'};
+  b.style.borderColor=(cols[type]||'var(--em)');
+  b.classList.add('show');
+  if(bannerTO) clearTimeout(bannerTO);
+  bannerTO=setTimeout(function(){closeBanner();},10000);
+}
+function closeBanner(){
+  var b=document.getElementById('notif-banner');
+  if(b) b.classList.remove('show');
+  if(bannerTO){clearTimeout(bannerTO);bannerTO=null;}
+}
+function startTitleBlink(label,ampm,type){
+  stopTitleBlink(); var blink=true,count=0;
+  var blinkMsg=type==='chat'?('Chat: '+label+' escribio'):(label+(ampm?' '+ampm:'')+' Actualiza timesheet!');
+  titleBlinkInt=setInterval(function(){
+    document.title=blink?blinkMsg:ORIG_TITLE; blink=!blink; count++;
+    if(count>=16) stopTitleBlink();
+  },1000);
+}
+function stopTitleBlink(){
+  if(titleBlinkInt){clearInterval(titleBlinkInt);titleBlinkInt=null;}
+  document.title=ORIG_TITLE;
+}
+function playBeep(){
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach(function(f,i){
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
+      var t=ac.currentTime+i*0.18;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.12,t+0.05);g.gain.linearRampToValueAtTime(0,t+0.25);
+      o.start(t);o.stop(t+0.3);
+    });
+  }catch(e){}
+}
+function initNotifications(){
+  if(gs('notif_enabled',false)){
+    notifEnabled=true;
+    var btn=document.getElementById('notif-btn');
+    if(btn) btn.style.borderColor='var(--em)';
+    startNotifScheduler(); startChatPoller();
+  }
+}
+function toggleRightPanel(){
+  var rp=document.querySelector('.right-panel');
+  if(rp) rp.classList.toggle('open');
+}
+
+// -- SPACE BACKGROUND --
 (function initSpace(){
   var cv=document.getElementById('canvas-bg');
   if(!cv) return;
-  var ctx=cv.getContext('2d'), W, H;
-  function resize(){ W=cv.width=window.innerWidth; H=cv.height=window.innerHeight; }
+  var ctx=cv.getContext('2d'),W,H;
+  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
   resize(); window.addEventListener('resize',resize);
   var stars=[];
   for(var i=0;i<200;i++) stars.push({x:Math.random()*1920,y:Math.random()*1080,r:Math.random()*1.3+0.2,o:Math.random()*0.7+0.15,ts:0.004+Math.random()*0.012,to:Math.random()*Math.PI*2});
@@ -1986,17 +2131,16 @@ setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').
     {x:1573,y:151,r:36,c:'#3d6b8e',ring:true,ringC:'#5a8aad',ringA:0.35,moons:[{a:0,d:55,r:5,mc:'#7a9bb5',s:0.003}],dvx:0.007,dvy:0.003},
     {x:211,y:786,r:20,c:'#4a7c59',ring:false,moons:[{a:1.2,d:33,r:3,mc:'#7abf8a',s:0.006}],dvx:-0.005,dvy:0.004},
     {x:1056,y:939,r:12,c:'#7a5c3a',ring:false,moons:[],dvx:0.005,dvy:-0.003},
-    {x:518,y:183,r:8,c:'#5a4a7a',ring:false,moons:[],dvx:-0.006,dvy:0.005},
+    {x:518,y:183,r:8,c:'#5a4a7a',ring:false,moons:[],dvx:-0.006,dvy:0.005}
   ];
   function lgt(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.min(255,v+a).toString(16).padStart(2,'0');}).join('');}
   function drk(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.max(0,v-a).toString(16).padStart(2,'0');}).join('');}
-  var frame=0, sstar=null;
+  var frame=0,sstar=null;
   function loop(){
     ctx.clearRect(0,0,W,H); frame++;
     stars.forEach(function(s){
       var tw=0.5+0.5*Math.sin(frame*s.ts+s.to);
-      ctx.globalAlpha=s.o*(0.4+0.6*tw);
-      ctx.fillStyle='#fff';
+      ctx.globalAlpha=s.o*(0.4+0.6*tw);ctx.fillStyle='#fff';
       ctx.beginPath();ctx.arc(s.x*(W/1920),s.y*(H/1080),s.r,0,Math.PI*2);ctx.fill();
     });
     ctx.globalAlpha=1;
@@ -2015,7 +2159,7 @@ setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').
       ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
       p.moons.forEach(function(m){
         m.a+=m.s;
-        var mx=x+Math.cos(m.a)*m.d*(W/1920), my=y+Math.sin(m.a)*m.d*0.5*(H/1080);
+        var mx=x+Math.cos(m.a)*m.d*(W/1920),my=y+Math.sin(m.a)*m.d*0.5*(H/1080);
         ctx.beginPath();ctx.arc(mx,my,m.r,0,Math.PI*2);ctx.fillStyle=m.mc+'cc';ctx.fill();
       });
       p.x+=p.dvx;p.y+=p.dvy;
@@ -2041,86 +2185,95 @@ setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').
   loop();
 })();
 
-// ── NOTIFICATIONS ──────────────────────────────────────────────────────────────
-var notifEnabled=false,notifInterval=null,titleBlinkInt=null,bannerTO=null;
-var ORIG_TITLE='GEOTRACK — GEOMATICA/FCISA';
-async function toggleNotifications(){
-  var btn=document.getElementById('notif-btn');
-  if(!notifEnabled){
-    notifEnabled=true; if(btn) btn.style.borderColor='var(--em)';
-    if('Notification' in window && Notification.permission==='default') await Notification.requestPermission();
-    startNotifScheduler();
-    showToast('Alertas activadas — cada hora 9AM a 5PM');
-    ss('notif_enabled',true);
+// -- EMOJI PICKER --
+var EMOJIS=['&#128522;','&#128516;','&#128514;','&#128517;','&#128526;','&#129395;','&#127881;','&#128079;','&#128588;','&#128170;','&#128077;','&#128075;','&#129309;','&#9989;','&#10084;','&#128293;','&#11088;','&#128161;','&#128204;','&#128203;','&#128506;','&#127757;','&#127807;','&#128752;','&#128208;','&#128207;','&#128301;','&#127956;','&#127754;','&#127795;','&#9888;','&#10060;','&#10004;','&#128640;','&#128172;','&#128202;','&#128200;','&#128187;','&#128450;','&#128269;','&#128517;','&#129300;','&#128564;','&#128548;','&#129393;','&#128556;','&#129327;','&#129652;','&#128565;','&#129321;','&#9749;','&#127829;','&#127918;','&#127942;','&#129351;','&#127919;','&#8987;','&#128197;','&#128218;','&#128193;'];
+function toggleEmoji(){
+  var panel=document.getElementById('emoji-panel');
+  var open=panel.style.display==='flex';
+  if(!open){
+    if(!panel.children.length){
+      panel.innerHTML=EMOJIS.map(function(e){return '<span onclick="insertEmoji(\''+e+'\')" style="font-size:20px;cursor:pointer;padding:3px 5px;border-radius:4px" onmouseover="this.style.background=\'var(--surface)\'" onmouseout="this.style.background=\'\'">'+e+'</span>';}).join('');
+    }
+    panel.style.display='flex';
   } else {
-    notifEnabled=false; if(btn) btn.style.borderColor='var(--border)';
-    if(notifInterval){clearInterval(notifInterval);notifInterval=null;}
-    stopTitleBlink(); ss('notif_enabled',false); showToast('Alertas desactivadas');
+    panel.style.display='none';
   }
 }
-function startNotifScheduler(){
-  if(notifInterval) clearInterval(notifInterval);
-  notifInterval=setInterval(function(){
-    if(!notifEnabled) return;
-    var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
-    if(m===0 && s<31 && h>=9 && h<=17) fireAllAlerts(h);
-  },30000);
+function insertEmoji(e){
+  var inp=document.getElementById('chat-inp');
+  var pos=inp.selectionStart!=null?inp.selectionStart:inp.value.length;
+  inp.value=inp.value.slice(0,pos)+e+inp.value.slice(pos);
+  inp.focus();inp.selectionStart=inp.selectionEnd=pos+e.length;
+  document.getElementById('emoji-panel').style.display='none';
 }
-function fireAllAlerts(hour){
-  var h12=hour>12?hour-12:(hour===0?12:hour);
-  var ampm=hour>=12?'PM':'AM';
-  var proj=activeIdx!==null&&projects[activeIdx]?projects[activeIdx].code:null;
-  var title='Son las '+h12+':00 '+ampm;
-  var msg=proj?'Proyecto: '+proj.substring(0,28)+'. Verifica tu timesheet.':'Sin proyecto activo. Recuerda registrar tus horas.';
-  if('Notification' in window && Notification.permission==='granted'){
-    try{var n=new Notification('⏰ '+title+' — GEOTRACK',{body:msg,tag:'gt-hourly'});setTimeout(function(){n.close();},8000);}catch(e){}
-  }
-  showBanner(title,msg); startTitleBlink(h12,ampm); playBeep();
+
+// -- NEWS --
+var NEWS_ALL=[
+  [{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: razonamiento espacial avanzado para proyectos ambientales',url:'https://www.anthropic.com/news'},{src:'NASA Earthdata',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Landsat 9: nuevos datasets para monitoreo de cobertura vegetal en Sudamerica',url:'https://earthdata.nasa.gov'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'QGIS 3.36: mejoras de rendimiento y nuevos plugins de analisis espacial',url:'https://qgis.org'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para EIA utilizando tecnologia SIG y teledeteccion',url:'https://www.gob.pe/minam'}],
+  [{src:'ESRI ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3: herramientas de analisis geoespacial con inteligencia artificial',url:'https://www.esri.com/arcgis-blog'},{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Sentinel-2 actualizado con cobertura completa para Peru y Latinoamerica',url:'https://earthengine.google.com'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Constitutional AI: sistemas seguros para aplicaciones criticas en medio ambiente',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Actualizacion de datos cartograficos para Lima Metropolitana y zonas mineras',url:'https://www.openstreetmap.org'}],
+  [{src:'NASA Earthdata',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'MODIS Terra: analisis de cambio de uso de suelo en cuencas andinas',url:'https://earthdata.nasa.gov'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'SEIA digital: modernizacion del sistema de evaluacion de impacto ambiental',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Modelos de IA para deteccion de cambios en imagenes satelitales',url:'https://www.anthropic.com/news'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Story Maps para comunicar estudios de impacto ambiental al publico',url:'https://www.esri.com'}],
+  [{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Analisis de deforestacion en la Amazonia con machine learning y GEE',url:'https://earthengine.google.com'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Plugin QGIS para generacion automatica de mapas de vulnerabilidad ambiental',url:'https://qgis.org'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'LLMs aplicados a la interpretacion de normativa ambiental peruana',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Mapeo colaborativo de areas naturales protegidas en Peru con OSM',url:'https://www.openstreetmap.org'}],
+  [{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Inventario nacional de glaciares: avances con teledeteccion y SIG',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Automatizacion de informes ambientales con modelos de lenguaje',url:'https://www.anthropic.com/news'},{src:'NASA',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'SAR Sentinel-1 para mapeo de inundaciones en zonas costeras peruanas',url:'https://earthdata.nasa.gov'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Dashboards ambientales en tiempo real con ArcGIS Online',url:'https://www.esri.com'}],
+  [{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Tutorial: monitoreo de calidad del agua con indices espectrales en GEE',url:'https://earthengine.google.com'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Automatizacion de cartografia tematica con PyQGIS y modelos de procesamiento',url:'https://qgis.org'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Interpretabilidad en IA: avances para aplicaciones criticas en ciencias ambientales',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Humanitario OSM: cartografia de zonas de riesgo en ciudades andinas',url:'https://www.openstreetmap.org'}],
+  [{src:'NASA',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'VIIRS: imagenes de incendios forestales activos en America del Sur',url:'https://earthdata.nasa.gov'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Programa nacional de reforestacion: avances 2025 con monitoreo satelital',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'IA en gestion ambiental: casos de exito en Latinoamerica',url:'https://www.anthropic.com/news'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Field Maps para trabajo de campo en estudios de impacto ambiental',url:'https://www.esri.com'}]
+];
+function loadNews(){
+  var grid=document.getElementById('news-grid');
+  var list=document.getElementById('news-list');
+  if(!grid||!list) return;
+  grid.innerHTML='<div style="padding:20px;color:var(--text3);grid-column:span 2;font-size:13px">Cargando noticias...</div>';
+  var dayIdx=new Date().getDay();
+  var NEWS=NEWS_ALL[dayIdx]||NEWS_ALL[0];
+  var days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  setTimeout(function(){
+    var html='';
+    for(var i=0;i<NEWS.length;i++){
+      var n=NEWS[i];
+      var imgPart=n.img?('<img src="'+n.img+'" class="news-img" data-ph="'+n.icon+'">'):'<div class="news-img-placeholder">'+n.icon+'</div>';
+      html+='<div class="news-card" data-url="'+n.url+'">';
+      html+=imgPart;
+      html+='<div class="news-body">';
+      html+='<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.tag+'</div>';
+      html+='<div class="news-h">'+n.title+'</div>';
+      html+='<div class="news-meta"><span class="news-src2">'+n.src+'</span><span class="news-dt">'+days[dayIdx]+'</span></div>';
+      html+='</div></div>';
+    }
+    grid.innerHTML=html;
+    list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px 0">Noticias rotadas cada dia de la semana</div>';
+    grid.querySelectorAll('.news-card').forEach(function(card){
+      card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+      var img=card.querySelector('img');
+      if(img) img.onerror=function(){this.style.display='none';};
+    });
+  },400);
 }
-function showBanner(title,msg){
-  var b=document.getElementById('notif-banner');
-  if(!b) return;
-  document.getElementById('nb-title').textContent='⏰ '+title;
-  document.getElementById('nb-msg').textContent=msg;
-  b.classList.add('show');
-  if(bannerTO) clearTimeout(bannerTO);
-  bannerTO=setTimeout(function(){closeBanner();},12000);
-}
-function closeBanner(){
-  var b=document.getElementById('notif-banner');
-  if(b) b.classList.remove('show');
-  if(bannerTO){clearTimeout(bannerTO);bannerTO=null;}
-}
-function startTitleBlink(h12,ampm){
-  stopTitleBlink(); var blink=true,count=0;
-  titleBlinkInt=setInterval(function(){
-    document.title=blink?('⏰ '+h12+':00 '+ampm+' — Actualiza timesheet!'):ORIG_TITLE;
-    blink=!blink; count++; if(count>=20) stopTitleBlink();
-  },1000);
-}
-function stopTitleBlink(){
-  if(titleBlinkInt){clearInterval(titleBlinkInt);titleBlinkInt=null;}
-  document.title=ORIG_TITLE;
-}
-function playBeep(){
+
+// -- GAME SOUNDS --
+function playLaser(){
   try{
     var ac=new(window.AudioContext||window.webkitAudioContext)();
-    [523,659,784].forEach(function(f,i){
-      var o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
-      var t=ac.currentTime+i*0.18;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.12,t+0.05);g.gain.linearRampToValueAtTime(0,t+0.25);
-      o.start(t);o.stop(t+0.3);
-    });
+    var o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);o.type='sawtooth';
+    o.frequency.setValueAtTime(880,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(220,ac.currentTime+0.12);
+    g.gain.setValueAtTime(0.15,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);
+    o.start(ac.currentTime);o.stop(ac.currentTime+0.13);
   }catch(e){}
 }
-function initNotifications(){
-  if(gs('notif_enabled',false)){
-    notifEnabled=true;
-    var btn=document.getElementById('notif-btn');
-    if(btn) btn.style.borderColor='var(--em)';
-    startNotifScheduler();
-  }
+function playExplosion(pts){
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    var buf=ac.createBuffer(1,Math.floor(ac.sampleRate*0.3),ac.sampleRate);
+    var data=buf.getChannelData(0);
+    for(var i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5);
+    var src=ac.createBufferSource(),g=ac.createGain(),filt=ac.createBiquadFilter();
+    src.buffer=buf;filt.type='bandpass';filt.frequency.value=pts>=30?180:280;filt.Q.value=0.8;
+    src.connect(filt);filt.connect(g);g.connect(ac.destination);
+    g.gain.setValueAtTime(pts>=30?0.4:0.25,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.3);
+    src.start(ac.currentTime);src.stop(ac.currentTime+0.3);
+  }catch(e){}
 }
 </script>
 </body>
