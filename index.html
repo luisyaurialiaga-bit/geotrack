@@ -540,13 +540,14 @@ select.filter-sel{
         <div class="sec-hdr">
           <div class="sec-title">Timesheet Semanal</div>
           <div class="sec-line"></div>
+          <select class="filter-sel" id="ts-week-filter" onchange="onWeekChange()" style="margin-right:6px"></select>
           <select class="filter-sel" id="ts-filter" onchange="renderTS()"></select>
         </div>
         <div class="ts-wrap"><table class="ts" id="ts-table"></table></div>
         <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
           <button class="btn primary" onclick="copyTimesheet()">📋 Copiar para Excel</button>
           <button class="btn" onclick="exportCSV()">↓ Exportar CSV</button>
-          <button class="btn" onclick="clearSheet()">🗑 Limpiar mi semana</button>
+          <button class="btn" onclick="clearSheet()">🗑 Limpiar semana actual</button>
         </div>
       </div>
 
@@ -838,7 +839,7 @@ const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function initLogin(){ /* buttons are static HTML */ }
-var PINS={'Jose Yauri':'1924','Elsa Sanez':'0920','Katherine Gabriel':'7536','Jhojan Rivera':'0509','Daniel Davila':'2304'};
+var PINS={'Jose Yauri':'1924','Elsa Sanez':'0920','Katherine Gabriel':'7536','Jhojan Rivera':'0509','Daniel Dávila':'2304'};
 var pinBuffer='',pendingUserIdx=-1,isGuest=false;
 
 function selectUser(i){
@@ -856,6 +857,13 @@ function backToSelect(){
   document.getElementById('step-guest').style.display='none';
   pinBuffer=''; pendingUserIdx=-1;
 }
+// Keyboard support for PIN
+document.addEventListener('keydown',function(e){
+  if(document.getElementById('step-pin').style.display==='none') return;
+  if(e.key>='0'&&e.key<='9'){ pinPress(parseInt(e.key)); }
+  else if(e.key==='Backspace'){ pinClear(); }
+  else if(e.key==='Enter'){ if(pinBuffer.length===4) pinConfirm(); }
+});
 function showGuestLogin(){
   document.getElementById('step-select').style.display='none';
   document.getElementById('step-guest').style.display='block';
@@ -1070,7 +1078,7 @@ async function activateProj(i){
   if(activeIdx!==null&&sessionStart) closeSession();
   activeIdx=i; isPaused=false; sessionStart=Date.now();
   const day=getCurDay(), hr=getCurHour();
-  if(day&&hr){ const g=await gg(currentUser.name); if(!g[day])g[day]={}; g[day][hr]=projects[i].code; sg(currentUser.name,g); addActivity(projects[i].code,day,hr); }
+  if(day&&hr){ const curWk=getWeekKey(0); const g=await gg(currentUser.name,curWk); if(!g[day])g[day]={}; g[day][hr]=projects[i].code; sg(currentUser.name,g,curWk); addActivity(projects[i].code,day,hr); }
   setOnline();
   document.getElementById('rp-proj').textContent=projects[i].code;
   document.getElementById('btn-pause').textContent='⏸ Pausar';
@@ -1122,15 +1130,34 @@ function renderMiniLog(){
 }
 
 // ── TIMESHEET ─────────────────────────────────────────────────────────────────
-function initTSFilter(){
+async function initTSFilter(){
   const sel=document.getElementById('ts-filter');
   const names=[currentUser?.name||'',...TEAM.map(u=>u.name).filter(n=>n!==currentUser?.name)];
   sel.innerHTML=names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  await initWeekFilter();
+}
+async function initWeekFilter(){
+  const sel=document.getElementById('ts-week-filter');
+  if(!sel) return;
+  const user=document.getElementById('ts-filter')?.value||(currentUser?.name||'');
+  const weeks=await getUserWeeks(user);
+  sel.innerHTML=weeks.map(function(w){
+    var label=weekKeyToLabel(w);
+    var isCurrent=w===getWeekKey(0);
+    return '<option value="'+w+'"'+(isCurrent?' selected':'')+'>'+label+(isCurrent?' ★':'')+'</option>';
+  }).join('');
+  currentWeekKey=sel.value||getWeekKey(0);
+}
+async function onWeekChange(){
+  currentWeekKey=document.getElementById('ts-week-filter').value||getWeekKey(0);
+  renderTS();
 }
 async function renderTS(){
   const user=document.getElementById('ts-filter')?.value||(currentUser?.name||'');
-  const g=await gg(user);
+  const week=currentWeekKey||getWeekKey(0);
+  const g=await gg(user,week);
   const t=document.getElementById('ts-table');
+  const isCurrentWeek=week===getWeekKey(0);
   let h='<thead><tr><th class="day-h">DÍA</th>';
   HOURS.forEach(hr=>{ h+=`<th style="font-size:11px">${hr}</th>`; });
   h+='</tr></thead><tbody>';
@@ -1138,20 +1165,28 @@ async function renderTS(){
     h+=`<tr><th class="day-h">${day}</th>`;
     HOURS.forEach(hr=>{
       const v=g[day]&&g[day][hr]?g[day][hr]:'';
-      if(v){ const s=v.length>18?v.substring(0,18)+'…':v; h+=`<td><div class="tsc filled" onclick="openModal('${day}','${hr}','${user}')" title="${v}">${s}</div></td>`; }
-      else h+=`<td><div class="tsc empty" onclick="openModal('${day}','${hr}','${user}')">·</div></td>`;
+      if(v){ const s=v.length>18?v.substring(0,18)+'…':v; h+=`<td><div class="tsc filled" onclick="${isCurrentWeek?`openModal('${day}','${hr}','${user}')`:'void(0)'}" title="${v}">${s}</div></td>`; }
+      else h+=`<td><div class="tsc empty" onclick="${isCurrentWeek?`openModal('${day}','${hr}','${user}')`:'void(0)'}">·</div></td>`;
     });
     h+='</tr>';
   });
   t.innerHTML=h+'</tbody>';
+  if(!isCurrentWeek){
+    var note=document.getElementById('ts-readonly-note');
+    if(!note){ note=document.createElement('div'); note.id='ts-readonly-note'; note.style.cssText='font-size:12px;color:var(--text3);margin-top:8px;padding:6px 12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)'; t.parentNode.insertBefore(note,t.nextSibling); }
+    note.textContent='📅 Semana histórica — solo lectura';
+  } else {
+    var note=document.getElementById('ts-readonly-note');
+    if(note) note.remove();
+  }
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 async function openModal(day,hr,user){
   if(isGuest){showToast('Modo invitado: solo visualizacion');return;}
-  editCell={day,hr,user};
+  editCell={day,hr,user,week:currentWeekKey};
   document.getElementById('modal-desc').textContent=`${user} · ${day} · ${hr}`;
-  const g=await gg(user); document.getElementById('modal-inp').value=g[day]&&g[day][hr]?g[day][hr]:'';
+  const g=await gg(user,currentWeekKey); document.getElementById('modal-inp').value=g[day]&&g[day][hr]?g[day][hr]:'';
   document.getElementById('modal-sugg').innerHTML=projects.slice(0,8).map(p=>`<span class="sugg-chip" onclick="document.getElementById('modal-inp').value='${p.code}'">${p.code.substring(0,18)}</span>`).join('');
   document.getElementById('cell-modal').classList.add('open');
   setTimeout(()=>document.getElementById('modal-inp').focus(),100);
@@ -1160,10 +1195,10 @@ function closeModal(){ document.getElementById('cell-modal').classList.remove('o
 async function saveModal(){
   if(!editCell) return;
   const v=document.getElementById('modal-inp').value.trim();
-  const {day,hr,user}=editCell;
-  const g=await gg(user); if(!g[day])g[day]={};
+  const {day,hr,user,week}=editCell;
+  const g=await gg(user,week); if(!g[day])g[day]={};
   if(v) g[day][hr]=v; else delete g[day][hr];
-  sg(user,g); renderTS(); updateStats(); closeModal();
+  sg(user,g,week); renderTS(); updateStats(); closeModal();
 }
 document.getElementById('cell-modal').addEventListener('click',e=>{ if(e.target===document.getElementById('cell-modal')) closeModal(); });
 document.getElementById('modal-inp').addEventListener('keydown',e=>{ if(e.key==='Enter')saveModal(); if(e.key==='Escape')closeModal(); });
@@ -1203,7 +1238,7 @@ async function renderDashboard(){
 // ── STATS ─────────────────────────────────────────────────────────────────────
 async function updateStats(){
   if(!currentUser) return;
-  const today=getCurDay(), g=await gg(currentUser.name);
+  const today=getCurDay(), g=await gg(currentUser.name,getWeekKey(0));
   let th=0,wh=0; const pset=new Set();
   DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v){wh++;pset.add(v);if(day===today)th++;} }); });
   document.getElementById('s-today').textContent=th;
@@ -1216,7 +1251,7 @@ async function renderStats(){
   let total=0; const pm={}, pp={};
   TEAM.forEach(u=>{ pp[u.name]=0; });
   for(const u of TEAM){
-    const g=await gg(u.name);
+    const g=await gg(u.name,getWeekKey(0));
     DAYS.forEach(day=>{ if(!g[day])return; Object.entries(g[day]).forEach(([,v])=>{ if(v){total++;pp[u.name]=(pp[u.name]||0)+1;pm[v]=(pm[v]||0)+1;} }); });
   }
   document.getElementById('es-total').textContent=total+'h';
@@ -1238,7 +1273,7 @@ async function renderStats(){
 async function renderProjects(){
   var pm={};
   for(var ui=0;ui<TEAM.length;ui++){
-    var g=await gg(TEAM[ui].name);
+    var g=await gg(TEAM[ui].name,getWeekKey(0));
     DAYS.forEach(function(day){
       if(!g[day]) return;
       Object.values(g[day]).forEach(function(v){if(v) pm[v]=(pm[v]||0)+1;});
@@ -1270,7 +1305,7 @@ async function renderStats(){
   let total=0; const pm={}, pp={};
   TEAM.forEach(u=>{ pp[u.name]=0; });
   for(const u of TEAM){
-    const g=await gg(u.name);
+    const g=await gg(u.name,getWeekKey(0));
     DAYS.forEach(day=>{ if(!g[day])return; Object.entries(g[day]).forEach(([,v])=>{ if(v){total++;pp[u.name]=(pp[u.name]||0)+1;pm[v]=(pm[v]||0)+1;} }); });
   }
   document.getElementById('es-total').textContent=total+'h';
@@ -1291,7 +1326,7 @@ async function renderStats(){
 async function renderProjects(){
   const pm={};
   projects.forEach(p=>{ pm[p.code]=0; });
-  for(const u of TEAM){ const g=await gg(u.name); DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v&&pm[v]!==undefined)pm[v]++; }); }); }
+  for(const u of TEAM){ const g=await gg(u.name,getWeekKey(0)); DAYS.forEach(day=>{ if(!g[day])return; Object.values(g[day]).forEach(v=>{ if(v&&pm[v]!==undefined)pm[v]++; }); }); }
   const max=Math.max(1,...Object.values(pm));
   document.getElementById('proj-bars').innerHTML=projects.length?projects.map((p,i)=>`
     <div class="bar-row"><div class="bar-lbl" style="color:${p.color}">${p.code.substring(0,22)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((pm[p.code]||0)/max*100)}%;background:linear-gradient(to right,${p.color}88,${p.color})"></div></div><div class="bar-val">${pm[p.code]||0}h</div></div>`).join('')
@@ -1471,7 +1506,7 @@ async function renderWorkload(){
   const MAX_HOURS=50;
   const teamDataArr=[];
   for(const u of TEAM){
-    const g=await gg(u.name);
+    const g=await gg(u.name,getWeekKey(0));
     let total=0; const projMap={};
     DAYS.forEach(day=>{
       if(!g[day]) return;
@@ -1563,24 +1598,25 @@ async function renderWorkload(){
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 async function copyTimesheet(){
   if(!currentUser) return;
-  const g=await gg(currentUser.name);
+  const g=await gg(currentUser.name,currentWeekKey);
   let tsv='DÍA\t'+HOURS.join('\t')+'\n';
   DAYS.forEach(day=>{ tsv+=day; HOURS.forEach(h=>{ tsv+='\t'+(g[day]&&g[day][h]?g[day][h]:''); }); tsv+='\n'; });
   navigator.clipboard.writeText(tsv).then(()=>showToast('Tabla copiada → pega en Excel con Ctrl+V'));
 }
 async function exportCSV(){
   if(!currentUser) return;
-  const g=await gg(currentUser.name);
+  const g=await gg(currentUser.name,currentWeekKey);
   let csv='DÍA,'+HOURS.join(',')+'\n';
   DAYS.forEach(day=>{ csv+=day; HOURS.forEach(h=>{ csv+=','+(g[day]&&g[day][h]?'"'+g[day][h]+'"':''); }); csv+='\n'; });
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download='timesheet_'+currentUser.name.replace(' ','_')+'.csv';
+  a.download='timesheet_'+currentUser.name.replace(' ','_')+'_'+currentWeekKey+'.csv';
   a.click(); showToast('CSV exportado');
 }
 async function clearSheet(){
   if(!currentUser||!confirm('¿Limpiar tu timesheet de esta semana?')) return;
-  await sg(currentUser.name,{}); renderTS(); updateStats(); showToast('Timesheet limpiado');
+  await sg(currentUser.name,{},getWeekKey(0)); gridCache[currentUser.name+'__'+getWeekKey(0)]={};
+  currentWeekKey=getWeekKey(0); renderTS(); updateStats(); showToast('Timesheet limpiado');
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -1930,17 +1966,66 @@ setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').
 
 // -- GRID CACHE --
 var gridCache={};
-async function gg(u){
-  if(gridCache[u]) return gridCache[u];
-  var local=gs('grid_'+u,{});
-  if(Object.keys(local).length>0) gridCache[u]=local;
-  var data=await fbGet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'));
-  var result=(data&&typeof data==='object')?data:local;
-  gridCache[u]=result; return result;
+
+// Returns the ISO week key: "2025-W12"
+function getWeekKey(offset){
+  if(offset===undefined) offset=0;
+  var now=new Date();
+  now.setDate(now.getDate()+offset*7);
+  var day=now.getDay()||7;
+  var mon=new Date(now); mon.setDate(now.getDate()-day+1);
+  var yr=mon.getFullYear();
+  var jan4=new Date(yr,0,4);
+  var w=Math.ceil(((mon-jan4)/86400000+jan4.getDay()+1)/7);
+  return yr+'-W'+(w<10?'0':'')+w;
 }
-async function sg(u,g){
-  gridCache[u]=g; ss('grid_'+u,g);
-  await fbSet('/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_'),g);
+
+// Returns a label like "Sem 12 · 17-22 Mar 2025"
+function weekKeyToLabel(key){
+  var m=key.match(/(\d+)-W(\d+)/);
+  if(!m) return key;
+  var yr=parseInt(m[1]), wn=parseInt(m[2]);
+  var jan4=new Date(yr,0,4);
+  var mon=new Date(jan4.getTime()+(wn-1)*7*86400000);
+  mon.setDate(mon.getDate()-((mon.getDay()||7)-1));
+  var sat=new Date(mon); sat.setDate(mon.getDate()+5);
+  var fmt=function(d){ return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short'}); };
+  return 'Sem '+wn+' · '+fmt(mon)+' – '+fmt(sat)+' '+yr;
+}
+
+var currentWeekKey=getWeekKey(0); // active week key for timesheet view
+
+async function gg(u,weekKey){
+  if(!weekKey) weekKey=currentWeekKey;
+  var ckey=u+'__'+weekKey;
+  if(gridCache[ckey]) return gridCache[ckey];
+  var local=gs('grid_'+u+'_'+weekKey,{});
+  if(Object.keys(local).length>0) gridCache[ckey]=local;
+  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+weekKey.replace('-','_');
+  var data=await fbGet(fbKey);
+  var result=(data&&typeof data==='object')?data:local;
+  gridCache[ckey]=result; return result;
+}
+async function sg(u,g,weekKey){
+  if(!weekKey) weekKey=currentWeekKey;
+  var ckey=u+'__'+weekKey;
+  gridCache[ckey]=g;
+  ss('grid_'+u+'_'+weekKey,g);
+  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+weekKey.replace('-','_');
+  await fbSet(fbKey,g);
+}
+
+// Get all stored week keys for a user from Firebase
+async function getUserWeeks(u){
+  var fbPath='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_');
+  var data=await fbGet(fbPath);
+  var weeks=[];
+  if(data&&typeof data==='object'){
+    weeks=Object.keys(data).map(function(k){ return k.replace('_','-'); }).sort().reverse();
+  }
+  // Also include current week even if empty
+  if(weeks.indexOf(currentWeekKey)===-1) weeks.unshift(currentWeekKey);
+  return weeks;
 }
 
 // -- RENDER RP WITH SEARCH --
