@@ -759,9 +759,6 @@ select.filter-sel{
           </div>
         </div>
       </div>
-          </div>
-        </div>
-      </div>
 
     </div><!-- /main-panel -->
 
@@ -984,13 +981,13 @@ function finishLogin(){
   if(badge) badge.style.display=isGuest?'block':'none';
   
   // 2. Load data asynchronously after UI is visible
-  setTimeout(function(){
+  setTimeout(async function(){
     try{ projects=gs('projects',[]); }catch(e){}
-    try{ initTSFilter(); }catch(e){}
     try{ renderRPProjs(); }catch(e){}
     try{ renderMiniLogSync(); }catch(e){}
     try{ loadNews(); }catch(e){}
     try{ initNotifications(); }catch(e){}
+    try{ await initTSFilter(); }catch(e){}
     // Load Firebase data in background
     loadRemoteData();
   }, 50);
@@ -1108,7 +1105,7 @@ function navTo(page,btn){
   if(page==='estadisticas') renderStats();
   if(page==='proyectos') renderProjects();
   if(page==='chat') renderChat();
-  if(page==='timesheet'){ initTSFilter(); renderTS(); }
+  if(page==='timesheet'){ initTSFilter().then(function(){ renderTS(); }); }
   if(page==='dashboard') renderDashboard();
   if(page==='carga'){ renderWorkload(); }
   if(page==='juego'){ initGame(); loadLeaderboard(); }
@@ -1181,14 +1178,51 @@ async function addActivity(code,day,hr){
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h'+m+'m':m+'m'; }
 
 // ── RENDER RIGHT PANEL ────────────────────────────────────────────────────────
-function renderRPProjs(){
-  const el=document.getElementById('rp-projs');
-  if(!projects.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">Sin proyectos. Carga una carpeta o agrega manualmente.</div>'; return; }
-  el.innerHTML=projects.map((p,i)=>`
-    <div class="rp-proj ${activeIdx===i?'active':''}" onclick="activateProj(${i})">
-      <div class="rp-pdot" style="background:${p.color}"></div>
-      <div class="rp-pcode">${p.code}</div>
-    </div>`).join('');
+function renderRPProjs(filter){
+  if(filter===undefined) filter='';
+  var el=document.getElementById('rp-projs');
+  if(!projects.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px">Sin proyectos. Agrega uno con el botón de abajo.</div>';
+    return;
+  }
+  var q=filter.toLowerCase().trim(), html='', count=0;
+  var isAdmin=currentUser&&currentUser.name==='Jose Yauri';
+  for(var i=0;i<projects.length;i++){
+    var p=projects[i];
+    if(q&&p.code.toLowerCase().indexOf(q)===-1) continue;
+    var act=activeIdx===i?' active':'';
+    var label=q?hlMatch(p.code,q):p.code;
+    var delBtn=isAdmin
+      ?'<span onclick="deleteProj('+i+',event)" title="Eliminar proyecto" style="margin-left:6px;width:18px;height:18px;border-radius:4px;background:rgba(224,122,95,0.15);border:1px solid rgba(224,122,95,0.3);color:#e07a5f;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;line-height:1" onmouseover="this.style.background=\'rgba(224,122,95,0.35)\'" onmouseout="this.style.background=\'rgba(224,122,95,0.15)\'">✕</span>'
+      :'';
+    html+='<div class="rp-proj'+act+'" style="display:flex;align-items:center" onclick="activateProj('+i+')">'
+      +'<div class="rp-pdot" style="background:'+p.color+';flex-shrink:0"></div>'
+      +'<div class="rp-pcode" style="flex:1;overflow:hidden;text-overflow:ellipsis">'+label+'</div>'
+      +delBtn+'</div>';
+    count++;
+  }
+  if(!count) html='<div style="font-size:11px;color:var(--text3);padding:6px">Sin resultados para "'+filter+'"</div>';
+  el.innerHTML=html;
+}
+
+function hlMatch(t,q){
+  var i=t.toLowerCase().indexOf(q);
+  if(i===-1) return t;
+  return t.slice(0,i)+'<span style="background:rgba(201,168,76,0.35);color:var(--gold2)">'+t.slice(i,i+q.length)+'</span>'+t.slice(i+q.length);
+}
+
+async function deleteProj(i,e){
+  if(e) e.stopPropagation();
+  if(!currentUser||currentUser.name!=='Jose Yauri') return;
+  var code=projects[i].code;
+  if(!confirm('¿Eliminar "'+code+'" de la lista?\n\nLas horas ya registradas no se borran.')) return;
+  projects.splice(i,1);
+  await fbSet('/projects',projects);
+  ss('projects',projects);
+  if(activeIdx===i) activeIdx=null;
+  else if(activeIdx>i) activeIdx--;
+  renderRPProjs(); renderProjects();
+  showToast('Proyecto eliminado: '+code.substring(0,24));
 }
 function renderMiniLog(){
   if(!currentUser) return;
@@ -1210,7 +1244,11 @@ async function initWeekFilter(){
   const sel=document.getElementById('ts-week-filter');
   if(!sel) return;
   const user=document.getElementById('ts-filter')?.value||(currentUser?.name||'');
-  const weeks=await getUserWeeks(user);
+  var weeks=[getWeekKey(0)]; // siempre incluir semana actual
+  try{
+    const fetched=await getUserWeeks(user);
+    if(fetched&&fetched.length) weeks=fetched;
+  }catch(e){}
   sel.innerHTML=weeks.map(function(w){
     var label=weekKeyToLabel(w);
     var isCurrent=w===getWeekKey(0);
@@ -1224,7 +1262,10 @@ async function onWeekChange(){
 }
 async function renderTS(){
   const user=document.getElementById('ts-filter')?.value||(currentUser?.name||'');
-  const week=currentWeekKey||getWeekKey(0);
+  // Siempre resolver la semana activa — no depender del estado global
+  const weekSel=document.getElementById('ts-week-filter');
+  const week=(weekSel&&weekSel.value)?weekSel.value:(currentWeekKey||getWeekKey(0));
+  currentWeekKey=week; // sincronizar
   const g=await gg(user,week);
   const t=document.getElementById('ts-table');
   const isCurrentWeek=week===getWeekKey(0);
@@ -1731,6 +1772,71 @@ function insertEmoji(e){
   inp.focus();
   inp.selectionStart=inp.selectionEnd=pos+e.length;
   document.getElementById('emoji-panel').style.display='none';
+}
+
+// ── GRID CACHE & WEEK KEYS ────────────────────────────────────────────────────
+var gridCache = {};
+var currentWeekKey = '';
+
+function getWeekKey(offset){
+  if(offset===undefined) offset=0;
+  var now=new Date();
+  now.setDate(now.getDate()+offset*7);
+  var day=now.getDay()||7;
+  var mon=new Date(now); mon.setDate(now.getDate()-day+1);
+  var yr=mon.getFullYear();
+  var jan4=new Date(yr,0,4);
+  var w=Math.ceil(((mon-jan4)/86400000+jan4.getDay()+1)/7);
+  return yr+'-W'+(w<10?'0':'')+w;
+}
+currentWeekKey = getWeekKey(0);
+
+function weekKeyToLabel(key){
+  var m=key.match(/(\d+)-W(\d+)/);
+  if(!m) return key;
+  var yr=parseInt(m[1]), wn=parseInt(m[2]);
+  var jan4=new Date(yr,0,4);
+  var mon=new Date(jan4.getTime()+(wn-1)*7*86400000);
+  mon.setDate(mon.getDate()-((mon.getDay()||7)-1));
+  var sat=new Date(mon); sat.setDate(mon.getDate()+5);
+  var fmt=function(d){ return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short'}); };
+  return 'Sem '+wn+' · '+fmt(mon)+' – '+fmt(sat)+' '+yr;
+}
+
+async function gg(u, weekKey){
+  if(!weekKey) weekKey=currentWeekKey||getWeekKey(0);
+  var ckey=u+'__'+weekKey;
+  if(gridCache[ckey]) return gridCache[ckey];
+  var local=gs('grid_'+u+'_'+weekKey,{});
+  if(Object.keys(local).length>0) gridCache[ckey]=local;
+  var fbWeekKey=weekKey.replace('-W','_W');
+  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+fbWeekKey;
+  var data=await fbGet(fbKey);
+  var result=(data&&typeof data==='object')?data:local;
+  gridCache[ckey]=result; return result;
+}
+async function sg(u, g, weekKey){
+  if(!weekKey) weekKey=currentWeekKey||getWeekKey(0);
+  var ckey=u+'__'+weekKey;
+  gridCache[ckey]=g;
+  ss('grid_'+u+'_'+weekKey,g);
+  var fbWeekKey=weekKey.replace('-W','_W');
+  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+fbWeekKey;
+  await fbSet(fbKey,g);
+}
+
+async function getUserWeeks(u){
+  var fbPath='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_');
+  var data=await fbGet(fbPath);
+  var weeks=[];
+  if(data&&typeof data==='object'){
+    weeks=Object.keys(data)
+      .filter(function(k){ return /^\d{4}_W\d{2}$/.test(k); })
+      .map(function(k){ return k.replace('_W','-W'); })
+      .sort().reverse();
+  }
+  if(weeks.indexOf(getWeekKey(0))===-1) weeks.unshift(getWeekKey(0));
+  return weeks;
 }
 
 // ── GAME: GEOBREAK ────────────────────────────────────────────────────────────
