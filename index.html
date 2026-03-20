@@ -726,24 +726,24 @@ select.filter-sel{
         </div>
         <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start">
           <div>
-            <canvas id="game-canvas" width="360" height="600"
-              style="background:#0d1a10;border:1px solid var(--border);border-radius:var(--r);display:block;margin:0 auto;cursor:crosshair"></canvas>
+            <canvas id="game-canvas" width="420" height="520"
+              style="border-radius:var(--r);display:block;margin:0 auto;cursor:crosshair"></canvas>
             <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
               <button class="btn primary" id="btn-start" onclick="gameStart()">▶ Inicio</button>
               <button class="btn" onclick="gamePause()">⏸ Pausa</button>
             </div>
             <div style="margin-top:10px;text-align:center;font-size:11px;color:var(--text3)">
-              🖱️ Mueve el cursor para apuntar · Clic para disparar · o usa ← → y Espacio
+              🖱️ Mueve el cursor · Clic o Espacio para disparar
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:14px">
             <div class="card" style="padding:16px">
-              <div class="card-title">Mi puntaje</div>
-              <div style="font-size:36px;font-weight:700;color:var(--em3);font-family:var(--mono)" id="score-display">0</div>
+              <div class="card-title">Puntaje</div>
+              <div style="font-size:36px;font-weight:700;color:#f7c948;font-family:var(--mono)" id="score-display">0</div>
               <div style="font-size:11px;color:var(--text3);margin-top:4px">Nivel <span id="level-display">1</span> · Vidas <span id="lives-display">3</span></div>
             </div>
             <div class="card" style="padding:16px">
-              <div class="card-title">🏆 Ranking Equipo</div>
+              <div class="card-title">🏆 Ranking</div>
               <div id="leaderboard" style="display:flex;flex-direction:column;gap:6px"></div>
             </div>
             <div class="card" style="padding:14px">
@@ -751,11 +751,14 @@ select.filter-sel{
               <div style="font-size:12px;color:var(--text2);line-height:1.7">
                 Coordenadas GPS caen desde arriba.<br>
                 Dispara para capturarlas antes de que lleguen al suelo.<br>
-                Cada coord vale <span style="color:var(--em3)">10 pts</span>.<br>
-                Las rojas valen <span style="color:#e07a5f">30 pts</span> pero son rápidas.<br>
+                Cada coord vale <span style="color:#f7c948">10 pts</span>.<br>
+                Las rojas valen <span style="color:#ff5252">30 pts</span> pero son rápidas.<br>
                 Pierde una vida si llegan abajo.
               </div>
             </div>
+          </div>
+        </div>
+      </div>
           </div>
         </div>
       </div>
@@ -1536,35 +1539,48 @@ async function sendAI(){
 function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── NEWS ──────────────────────────────────────────────────────────────────────
+var NEWS_ALL=[
+  {src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: razonamiento espacial avanzado para proyectos ambientales',url:'https://www.anthropic.com/news',date:'Hoy'},
+  {src:'NASA Earthdata',tag:'Satélite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Landsat 9: nuevos datasets para monitoreo de cobertura vegetal en Sudamérica',url:'https://earthdata.nasa.gov',date:'Hoy'},
+  {src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'QGIS 3.36: mejoras de rendimiento y nuevos plugins de análisis espacial',url:'https://qgis.org',date:'Hoy'},
+  {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para EIA utilizando tecnología SIG y teledetección',url:'https://www.gob.pe/minam',date:'Hoy'},
+  {src:'ESRI ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3: herramientas de análisis geoespacial con inteligencia artificial',url:'https://www.esri.com/arcgis-blog',date:'Esta semana'},
+  {src:'Google Earth Engine',tag:'Satélite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Sentinel-2 actualizado con cobertura completa para Perú y Latinoamérica',url:'https://earthengine.google.com',date:'Esta semana'},
+  {src:'OpenStreetMap',tag:'Cartografía',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Actualización de datos cartográficos para Lima Metropolitana y zonas mineras',url:'https://www.openstreetmap.org',date:'Esta semana'},
+  {src:'MINAM Perú',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'SEIA digital: modernización del sistema de evaluación de impacto ambiental',url:'https://www.gob.pe/minam',date:'Esta semana'},
+];
 
 function loadNews(){
-  const grid=document.getElementById('news-grid');
-  const list=document.getElementById('news-list');
+  var grid=document.getElementById('news-grid');
+  var list=document.getElementById('news-list');
+  if(!grid||!list) return;
   grid.innerHTML='<div class="news-loading" style="grid-column:span 2">🌿 Cargando noticias...</div>';
-  setTimeout(()=>{
-    const featured=NEWS.slice(0,4);
-    const rest=NEWS.slice(4);
-    grid.innerHTML=featured.map(n=>`
-      <div class="news-card" onclick="window.open('${n.url}','_blank')">
-        ${n.img
-          ? `<img src="${n.img}" class="news-img" alt="${n.src}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
-        <div class="news-img-placeholder" style="${n.img?'display:none':'display:flex'}">${n.icon}</div>
-        <div class="news-body">
-          <div class="news-tag" style="background:${n.tagColor}22;color:${n.tagColor};border:1px solid ${n.tagColor}44">${n.tag}</div>
-          <div class="news-h">${n.title}</div>
-          <div class="news-meta">
-            <span class="news-src2">${n.src}</span>
-            <span class="news-dt">${n.date}</span>
-          </div>
-        </div>
-      </div>`).join('');
-    list.innerHTML=rest.map(n=>`
-      <div class="news-list-item" onclick="window.open('${n.url}','_blank')">
-        <div class="news-list-icon" style="background:${n.tagColor}22;color:${n.tagColor}">${n.icon}</div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.4">${n.title}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${n.src} · ${n.date}</div></div>
-      </div>`).join('');
-  },500);
+  setTimeout(function(){
+    var NEWS=NEWS_ALL;
+    var featured=NEWS.slice(0,4);
+    var rest=NEWS.slice(4);
+    grid.innerHTML=featured.map(function(n){
+      return '<div class="news-card" onclick="window.open(\''+n.url+'\',\'_blank\')">'
+        +(n.img?'<img src="'+n.img+'" class="news-img" alt="'+n.src+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">':'')
+        +'<div class="news-img-placeholder" style="'+(n.img?'display:none':'display:flex')+'">'+n.icon+'</div>'
+        +'<div class="news-body">'
+        +'<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+';border:1px solid '+n.tagColor+'44">'+n.tag+'</div>'
+        +'<div class="news-h">'+n.title+'</div>'
+        +'<div class="news-meta"><span class="news-src2">'+n.src+'</span><span class="news-dt">'+n.date+'</span></div>'
+        +'</div></div>';
+    }).join('');
+    list.innerHTML=rest.map(function(n){
+      return '<div class="news-list-item" onclick="window.open(\''+n.url+'\',\'_blank\')">'
+        +'<div class="news-list-icon" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.icon+'</div>'
+        +'<div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.4">'+n.title+'</div>'
+        +'<div style="font-size:11px;color:var(--text3);margin-top:3px">'+n.src+' · '+n.date+'</div></div>'
+        +'</div>';
+    }).join('');
+    grid.querySelectorAll('.news-card').forEach(function(card){
+      var img=card.querySelector('img');
+      if(img) img.onerror=function(){this.style.display='none';};
+    });
+  },400);
 }
 
 // ── WORKLOAD ──────────────────────────────────────────────────────────────────
@@ -1718,712 +1734,516 @@ function insertEmoji(e){
 }
 
 // ── GAME: GEOBREAK ────────────────────────────────────────────────────────────
-let gameState = null;
+var gameState = null;
+
+// Paleta de colores vibrantes para los targets
+var TARGET_COLORS = [
+  {fill:'#ff5252', glow:'rgba(255,82,82,0.5)',  pts:30, label:'roja'},
+  {fill:'#40c4ff', glow:'rgba(64,196,255,0.5)', pts:10, label:'azul'},
+  {fill:'#69ff47', glow:'rgba(105,255,71,0.5)', pts:10, label:'verde'},
+  {fill:'#ffd740', glow:'rgba(255,215,64,0.5)', pts:20, label:'dorada'},
+  {fill:'#e040fb', glow:'rgba(224,64,251,0.5)', pts:20, label:'morada'},
+];
+
+var STAR_COLORS = ['#ff5252','#ffd740','#40c4ff','#69ff47','#e040fb','#ff6d00','#00e5ff'];
 
 function initGame(){
-  const canvas = document.getElementById('game-canvas');
+  var canvas = document.getElementById('game-canvas');
   if(!canvas) return;
   if(!gameState) drawGameIdle(canvas);
 }
 
 function drawGameIdle(canvas){
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0,0,W,H);
-  // Grid background
-  ctx.strokeStyle = 'rgba(78,203,160,0.08)';
-  ctx.lineWidth = 1;
-  for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
-  for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
-  // Title
-  ctx.fillStyle = 'rgba(78,203,160,0.6)';
-  ctx.font = 'bold 22px Consolas, monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('GEOBREAK', W/2, H/2-40);
-  ctx.font = '13px Consolas, monospace';
-  ctx.fillStyle = 'rgba(78,203,160,0.4)';
-  ctx.fillText('Captura coordenadas GPS', W/2, H/2);
-  ctx.fillText('Presiona INICIO para jugar', W/2, H/2+30);
-  // Decorative coords
-  const demoCoords = ['S12.046°','W77.042°','S8.112°','W74.930°'];
-  ctx.font = '10px Consolas, monospace';
-  ctx.fillStyle = 'rgba(78,203,160,0.2)';
-  demoCoords.forEach((c,i)=>{
-    ctx.fillText(c, 40+Math.random()*280, 80+i*60+Math.random()*20);
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // Fondo estrellado degradado
+  var grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0a0015');
+  grad.addColorStop(0.5,'#0d1b2a');
+  grad.addColorStop(1,'#0a1628');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+
+  // Estrellas de fondo
+  for(var i=0;i<120;i++){
+    var sx = (i*137+53)%W, sy = (i*97+41)%H;
+    var sr = Math.random()*1.5+0.3;
+    var sc = STAR_COLORS[i%STAR_COLORS.length];
+    ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2);
+    ctx.fillStyle = sc; ctx.globalAlpha = 0.6+Math.random()*0.4; ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Nave central decorativa
+  drawShip(ctx, W/2, H/2+60, 1.4, '#40c4ff');
+
+  // Título
+  ctx.shadowColor = '#40c4ff'; ctx.shadowBlur = 20;
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px monospace';
+  ctx.textAlign = 'center'; ctx.fillText('GEOBREAK', W/2, H/2-60);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#ffd740'; ctx.font = '13px monospace';
+  ctx.fillText('Captura coordenadas GPS', W/2, H/2-30);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '12px monospace';
+  ctx.fillText('Presiona INICIO para jugar', W/2, H/2-8);
+
+  // Coords decorativas de colores
+  var coords = ['S12.046°','W77.042°','S8.112°','W74.930°','N9.190°','W75.015°'];
+  ctx.font = '10px monospace';
+  coords.forEach(function(c,i){
+    ctx.fillStyle = STAR_COLORS[i%STAR_COLORS.length];
+    ctx.globalAlpha = 0.5;
+    ctx.fillText(c, 40+Math.random()*340, 60+i*55+Math.random()*15);
   });
+  ctx.globalAlpha = 1;
+}
+
+function drawShip(ctx, x, y, scale, color){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale||1, scale||1);
+  // Motor glow
+  var mg = ctx.createRadialGradient(0,18,0,0,18,16);
+  mg.addColorStop(0,'rgba(255,150,0,0.9)');
+  mg.addColorStop(0.4,'rgba(255,80,0,0.5)');
+  mg.addColorStop(1,'transparent');
+  ctx.fillStyle = mg;
+  ctx.fillRect(-14,10,28,24);
+  // Cuerpo nave
+  ctx.fillStyle = color||'#4ecba0';
+  ctx.shadowColor = color||'#4ecba0'; ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.moveTo(0,-22); ctx.lineTo(12,14); ctx.lineTo(0,8); ctx.lineTo(-12,14);
+  ctx.closePath(); ctx.fill();
+  // Ventana
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#e0f7ff';
+  ctx.beginPath(); ctx.arc(0,-4,6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#40c4ff';
+  ctx.beginPath(); ctx.arc(0,-4,3,0,Math.PI*2); ctx.fill();
+  // Alas
+  ctx.fillStyle = '#1565c0';
+  ctx.beginPath(); ctx.moveTo(-12,8); ctx.lineTo(-22,18); ctx.lineTo(-8,14); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(12,8); ctx.lineTo(22,18); ctx.lineTo(8,14); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawTarget(ctx, t){
+  var col = TARGET_COLORS[t.colorIdx];
+  // Halo
+  var rg = ctx.createRadialGradient(t.x,t.y,0,t.x,t.y,t.r*2.2);
+  rg.addColorStop(0, col.glow);
+  rg.addColorStop(1, 'transparent');
+  ctx.fillStyle = rg; ctx.fillRect(t.x-t.r*2.2, t.y-t.r*2.2, t.r*4.4, t.r*4.4);
+  // Círculo exterior
+  ctx.beginPath(); ctx.arc(t.x,t.y,t.r,0,Math.PI*2);
+  ctx.strokeStyle = col.fill; ctx.lineWidth = 2;
+  ctx.shadowColor = col.fill; ctx.shadowBlur = 10; ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Relleno semi-transparente
+  ctx.fillStyle = col.fill.replace(')',',0.2)').replace('rgb','rgba').replace('#','rgba(').replace('rgba(','rgba(').replace(',0.2)',',0.2)');
+  // Relleno simplificado
+  ctx.beginPath(); ctx.arc(t.x,t.y,t.r,0,Math.PI*2);
+  ctx.fillStyle = col.fill+'33'; ctx.fill();
+  // Cruz de mira
+  ctx.strokeStyle = col.fill; ctx.lineWidth = 1; ctx.shadowColor = col.fill; ctx.shadowBlur = 6;
+  ctx.beginPath(); ctx.moveTo(t.x-t.r+3,t.y); ctx.lineTo(t.x+t.r-3,t.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(t.x,t.y-t.r+3); ctx.lineTo(t.x,t.y+t.r-3); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Texto coord
+  ctx.fillStyle = col.fill; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(t.label, t.x, t.y+t.r+14);
+}
+
+function drawBullet(ctx, b){
+  var grad = ctx.createLinearGradient(b.x, b.y+8, b.x, b.y-8);
+  grad.addColorStop(0,'transparent');
+  grad.addColorStop(0.3,'#ffd740');
+  grad.addColorStop(1,'#ffffff');
+  ctx.fillStyle = grad;
+  ctx.shadowColor = '#ffd740'; ctx.shadowBlur = 8;
+  ctx.fillRect(b.x-2, b.y-8, 4, 14);
+  ctx.shadowBlur = 0;
+}
+
+function drawExplosion(ctx, ex){
+  var prog = 1 - ex.life/ex.maxLife;
+  var r = ex.maxR * prog;
+  ctx.globalAlpha = 1-prog;
+  // Anillos de colores
+  [ex.color, '#ffffff', '#ffd740'].forEach(function(c,i){
+    ctx.beginPath(); ctx.arc(ex.x,ex.y,r*(0.6+i*0.25),0,Math.PI*2);
+    ctx.strokeStyle = c; ctx.lineWidth = 3-i; ctx.shadowColor = c; ctx.shadowBlur = 12; ctx.stroke();
+  });
+  // Partículas
+  ctx.shadowBlur = 0;
+  for(var i=0;i<8;i++){
+    var ang = (i/8)*Math.PI*2 + prog*2;
+    var pr = r*0.9;
+    var px = ex.x + Math.cos(ang)*pr, py = ex.y + Math.sin(ang)*pr;
+    ctx.beginPath(); ctx.arc(px,py,2,0,Math.PI*2);
+    ctx.fillStyle = ex.color; ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 }
 
 function gameStart(){
-  const canvas = document.getElementById('game-canvas');
+  var canvas = document.getElementById('game-canvas');
   if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
 
-  // Game state
-  const GS = {
-    running: true, paused: false,
-    score: 0, lives: 3, level: 1, frameCount: 0,
-    coords: [], bullets: [], particles: [],
-    ship: { x: W/2, y: H-50, w: 28, h: 20 },
-    keys: {}, mouseX: W/2,
-    spawnRate: 120, // frames between spawns
+  var GS = {
+    ctx:ctx, W:W, H:H,
+    score:0, lives:3, level:1,
+    ship:{ x:W/2, y:H-50, targetX:W/2 },
+    targets:[], bullets:[], explosions:[],
+    stars:[], particles:[],
+    tick:0, spawnRate:90, paused:false,
+    raf:null, running:true,
+    shootCooldown:0, mouseX:W/2,
+    combo:0, comboTimer:0,
   };
+
+  // Estrellas de fondo permanentes
+  for(var i=0;i<140;i++){
+    GS.stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.5+0.3,
+      spd:Math.random()*0.4+0.1,
+      color:STAR_COLORS[i%STAR_COLORS.length],
+      alpha:0.4+Math.random()*0.6
+    });
+  }
+
   gameState = GS;
 
+  // Mouse
+  canvas.onmousemove = function(e){
+    var rect = canvas.getBoundingClientRect();
+    GS.mouseX = e.clientX - rect.left;
+  };
+  canvas.onclick = function(){ shoot(GS); };
+  document.onkeydown = function(e){
+    if(e.code==='Space'){ e.preventDefault(); shoot(GS); }
+  };
+
   document.getElementById('btn-start').textContent = '↺ Reiniciar';
+  document.getElementById('game-status').textContent = 'En juego...';
+  if(GS.raf) cancelAnimationFrame(GS.raf);
 
-  // Coord templates (lat/lon of Peru sites)
-  const coordPool = [
-    'S12.046°','S8.112°','S16.398°','S13.532°','S6.770°',
-    'W77.042°','W74.930°','W71.537°','W72.890°','W79.844°',
-    'LAT:-9.19°','LON:-75.01°','UTM 18S','UTM 17S','WGS84',
-    'EPSG:4326','EPSG:32718','DATUM:WGS','GRS80','NAD83',
-  ];
-
-  function spawnCoord(){
-    const isRed = Math.random() < 0.2;
-    GS.coords.push({
-      x: 20 + Math.random()*(W-40),
-      y: -20,
-      vy: (0.8 + Math.random()*0.8 + GS.level*0.15) * (isRed?1.6:1),
-      text: coordPool[Math.floor(Math.random()*coordPool.length)],
-      color: isRed ? '#e07a5f' : '#4ecba0',
-      pts: isRed ? 30 : 10,
-      w: 72, h: 18,
-    });
-  }
-
-  function shoot(x){
-    GS.bullets.push({ x: GS.ship.x, y: GS.ship.y-10, vy:-9, r:4 });
-  }
-
-  // Input
-  const onKey = e => {
-    GS.keys[e.code] = e.type === 'keydown';
-    if(e.code==='Space' && e.type==='keydown'){ shoot(GS.ship.x); e.preventDefault(); }
-  };
-  const onMouse = e => {
-    const rect = canvas.getBoundingClientRect();
-    GS.mouseX = (e.clientX - rect.left) * (W / rect.width);
-  };
-  const onClick = e => { if(GS.running && !GS.paused) shoot(GS.ship.x); };
-
-  document.addEventListener('keydown', onKey);
-  document.addEventListener('keyup', onKey);
-  canvas.addEventListener('mousemove', onMouse);
-  canvas.addEventListener('click', onClick);
-
-  function addParticles(x, y, color, n){
-    for(let i=0;i<n;i++){
-      const a = Math.random()*Math.PI*2;
-      const spd = 1+Math.random()*3;
-      GS.particles.push({ x, y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd, life:1, color, r:2+Math.random()*2 });
-    }
-  }
-
-  function updateScore(){
-    document.getElementById('score-display').textContent = GS.score;
-    document.getElementById('level-display').textContent = GS.level;
-    document.getElementById('lives-display').textContent = '❤️'.repeat(GS.lives);
-  }
-
-  function gameOver(){
-    GS.running = false;
-    document.removeEventListener('keydown', onKey);
-    document.removeEventListener('keyup', onKey);
-    canvas.removeEventListener('mousemove', onMouse);
-    canvas.removeEventListener('click', onClick);
-    // Draw game over
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
-    ctx.fillRect(0,0,W,H);
-    ctx.fillStyle = '#e07a5f';
-    ctx.font = 'bold 28px Consolas, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', W/2, H/2-30);
-    ctx.fillStyle = '#4ecba0';
-    ctx.font = '16px Consolas, monospace';
-    ctx.fillText('Puntaje: '+GS.score, W/2, H/2+10);
-    ctx.font = '13px Consolas, monospace';
-    ctx.fillStyle = 'rgba(78,203,160,0.5)';
-    ctx.fillText('Presiona INICIO para reiniciar', W/2, H/2+45);
-    // Save to leaderboard
-    saveScore(GS.score);
-    document.getElementById('btn-start').textContent = '▶ Inicio';
-    gameState = null;
-  }
-
-  let animId;
   function loop(){
-    if(!GS.running){ cancelAnimationFrame(animId); return; }
-    if(GS.paused){ animId=requestAnimationFrame(loop); return; }
-    GS.frameCount++;
-
-    // Move ship
-    const spd = 5;
-    if(GS.keys['ArrowLeft']) GS.ship.x = Math.max(GS.ship.w/2, GS.ship.x-spd);
-    if(GS.keys['ArrowRight']) GS.ship.x = Math.min(W-GS.ship.w/2, GS.ship.x+spd);
-    // Mouse follow
-    GS.ship.x += (GS.mouseX - GS.ship.x) * 0.12;
-    GS.ship.x = Math.max(GS.ship.w/2, Math.min(W-GS.ship.w/2, GS.ship.x));
-
-    // Spawn
-    if(GS.frameCount % GS.spawnRate === 0) spawnCoord();
-
-    // Level up every 300 frames
-    if(GS.frameCount % 300 === 0){
-      GS.level++;
-      GS.spawnRate = Math.max(40, GS.spawnRate - 10);
-    }
-
-    // Move coords
-    GS.coords = GS.coords.filter(c=>{
-      c.y += c.vy;
-      if(c.y > H+10){
-        GS.lives--;
-        addParticles(c.x, H-10, '#e07a5f', 8);
-        if(GS.lives<=0){ gameOver(); return false; }
-        updateScore();
-        return false;
-      }
-      return true;
-    });
-
-    // Move bullets
-    GS.bullets = GS.bullets.filter(b=>{ b.y+=b.vy; return b.y>-10; });
-
-    // Collision
-    GS.bullets = GS.bullets.filter(b=>{
-      let hit=false;
-      GS.coords = GS.coords.filter(c=>{
-        if(!hit && Math.abs(b.x-c.x)<c.w/2 && Math.abs(b.y-c.y)<c.h){
-          hit=true; GS.score+=c.pts;
-          addParticles(c.x,c.y,c.color,12);
-          updateScore();
-          return false;
-        }
-        return true;
-      });
-      return !hit;
-    });
-
-    // Move particles
-    GS.particles = GS.particles.filter(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.life-=0.04; return p.life>0;
-    });
-
-    // ── DRAW ──
-    ctx.clearRect(0,0,W,H);
-
-    // Grid
-    ctx.strokeStyle='rgba(78,203,160,0.06)';
-    ctx.lineWidth=1;
-    for(let x=0;x<W;x+=30){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
-    for(let y=0;y<H;y+=30){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
-
-    // Coords
-    GS.coords.forEach(c=>{
-      ctx.save();
-      ctx.strokeStyle=c.color+'88';
-      ctx.fillStyle=c.color+'22';
-      ctx.lineWidth=1;
-      const rx=c.x-c.w/2, ry=c.y-c.h/2;
-      ctx.beginPath();ctx.roundRect(rx,ry,c.w,c.h,4);
-      ctx.fill();ctx.stroke();
-      ctx.fillStyle=c.color;
-      ctx.font='10px Consolas,monospace';
-      ctx.textAlign='center';
-      ctx.fillText(c.text,c.x,c.y+4);
-      ctx.restore();
-    });
-
-    // Bullets
-    GS.bullets.forEach(b=>{
-      ctx.save();
-      ctx.fillStyle='#c9a84c';
-      ctx.shadowBlur=8;ctx.shadowColor='#c9a84c';
-      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    });
-
-    // Particles
-    GS.particles.forEach(p=>{
-      ctx.save();
-      ctx.globalAlpha=p.life;
-      ctx.fillStyle=p.color;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    });
-
-    // Ship (triangle)
-    ctx.save();
-    ctx.fillStyle='#4ecba0';
-    ctx.shadowBlur=12;ctx.shadowColor='#4ecba0';
-    ctx.beginPath();
-    ctx.moveTo(GS.ship.x, GS.ship.y-GS.ship.h/2);
-    ctx.lineTo(GS.ship.x-GS.ship.w/2, GS.ship.y+GS.ship.h/2);
-    ctx.lineTo(GS.ship.x+GS.ship.w/2, GS.ship.y+GS.ship.h/2);
-    ctx.closePath();ctx.fill();
-    ctx.restore();
-
-    // HUD
-    ctx.fillStyle='rgba(78,203,160,0.5)';
-    ctx.font='11px Consolas,monospace';
-    ctx.textAlign='left';
-    ctx.fillText('NVL '+GS.level, 8, 18);
-    ctx.textAlign='right';
-    ctx.fillText('⬡ '+GS.score, W-8, 18);
-    // Lives bar
-    for(let i=0;i<GS.lives;i++){
-      ctx.fillStyle='#e07a5f';
-      ctx.fillRect(8+i*14,H-16,10,8);
-    }
-
-    animId = requestAnimationFrame(loop);
+    if(!GS.running||GS.paused) return;
+    GS.raf = requestAnimationFrame(loop);
+    updateGame(GS);
+    renderGeoBreak(GS);
   }
   loop();
+}
+
+function shoot(GS){
+  if(!GS||!GS.running||GS.paused) return;
+  if(GS.shootCooldown>0) return;
+  GS.bullets.push({x:GS.ship.x, y:GS.ship.y-20, spd:11});
+  GS.shootCooldown = 8;
+  playShoot();
+}
+
+function updateGame(GS){
+  GS.tick++;
+  if(GS.shootCooldown>0) GS.shootCooldown--;
+  if(GS.comboTimer>0) GS.comboTimer--;
+  else GS.combo=0;
+
+  // Mover nave suavemente hacia el mouse
+  GS.ship.x += (GS.mouseX - GS.ship.x) * 0.18;
+  GS.ship.x = Math.max(20, Math.min(GS.W-20, GS.ship.x));
+
+  // Estrellas scroll
+  GS.stars.forEach(function(s){ s.y += s.spd; if(s.y>GS.H) s.y=-4; });
+
+  // Spawn targets
+  if(GS.tick % GS.spawnRate === 0){
+    var ci = Math.random()<0.18 ? 0 : Math.floor(Math.random()*(TARGET_COLORS.length-1))+1;
+    var col = TARGET_COLORS[ci];
+    var r = 18 + Math.random()*8;
+    GS.targets.push({
+      x: r + Math.random()*(GS.W-r*2),
+      y: -r, r:r,
+      spd: 0.8 + GS.level*0.25 + Math.random()*0.8,
+      colorIdx: ci,
+      pts: col.pts,
+      label: coordLabel(),
+      wobble: Math.random()*Math.PI*2,
+      wobbleSpd: (Math.random()-0.5)*0.04,
+    });
+  }
+
+  // Nivel sube cada 300 pts
+  var newLevel = Math.floor(GS.score/300)+1;
+  if(newLevel > GS.level){
+    GS.level = newLevel;
+    GS.spawnRate = Math.max(28, 90 - GS.level*8);
+    document.getElementById('level-display').textContent = GS.level;
+  }
+
+  // Mover targets
+  for(var i=GS.targets.length-1;i>=0;i--){
+    var t = GS.targets[i];
+    t.wobble += t.wobbleSpd;
+    t.x += Math.sin(t.wobble)*0.8;
+    t.y += t.spd;
+    if(t.y > GS.H+t.r){
+      GS.targets.splice(i,1);
+      GS.lives--;
+      document.getElementById('lives-display').textContent = GS.lives;
+      spawnHitParticles(GS, GS.W/2, GS.H-20, '#ff5252');
+      if(GS.lives<=0){ gameOver(GS); return; }
+    }
+  }
+
+  // Mover balas
+  for(var i=GS.bullets.length-1;i>=0;i--){
+    GS.bullets[i].y -= GS.bullets[i].spd;
+    if(GS.bullets[i].y < -10) GS.bullets.splice(i,1);
+  }
+
+  // Colisiones bala-target
+  for(var bi=GS.bullets.length-1;bi>=0;bi--){
+    var b = GS.bullets[bi];
+    var hit = false;
+    for(var ti=GS.targets.length-1;ti>=0;ti--){
+      var t = GS.targets[ti];
+      var dx=b.x-t.x, dy=b.y-t.y;
+      if(Math.sqrt(dx*dx+dy*dy)<t.r+4){
+        // Hit!
+        GS.combo++;
+        GS.comboTimer = 90;
+        var pts = t.pts * (GS.combo>2 ? Math.min(GS.combo,5) : 1);
+        GS.score += pts;
+        document.getElementById('score-display').textContent = GS.score;
+        var col = TARGET_COLORS[t.colorIdx];
+        GS.explosions.push({x:t.x,y:t.y,life:22,maxLife:22,maxR:t.r*2.8,color:col.fill});
+        spawnHitParticles(GS, t.x, t.y, col.fill);
+        // Score float text
+        GS.particles.push({type:'text',x:t.x,y:t.y-10,vy:-1.2,text:'+'+pts+(GS.combo>2?' x'+GS.combo:''),color:col.fill,life:40,maxLife:40});
+        GS.targets.splice(ti,1);
+        GS.bullets.splice(bi,1);
+        hit=true;
+        playHit(t.pts);
+        break;
+      }
+    }
+  }
+
+  // Explosiones
+  for(var i=GS.explosions.length-1;i>=0;i--){
+    GS.explosions[i].life--;
+    if(GS.explosions[i].life<=0) GS.explosions.splice(i,1);
+  }
+
+  // Particles
+  for(var i=GS.particles.length-1;i>=0;i--){
+    var p=GS.particles[i];
+    p.y+=p.vy||0; p.x+=(p.vx||0); p.life--;
+    if(p.type==='dot') p.vy+=0.12;
+    if(p.life<=0) GS.particles.splice(i,1);
+  }
+}
+
+function spawnHitParticles(GS, x, y, color){
+  for(var i=0;i<10;i++){
+    var ang = Math.random()*Math.PI*2;
+    var spd = 1.5+Math.random()*3;
+    GS.particles.push({type:'dot',x:x,y:y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-1,color:color,life:28,maxLife:28,r:2+Math.random()*2});
+  }
+}
+
+function renderGeoBreak(GS){
+  var ctx=GS.ctx, W=GS.W, H=GS.H;
+
+  // Fondo
+  var grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#050010');
+  grad.addColorStop(0.5,'#080d1a');
+  grad.addColorStop(1,'#050f1f');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  // Estrellas
+  GS.stars.forEach(function(s){
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=s.color; ctx.globalAlpha=s.alpha; ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  // Nebulosa decorativa
+  var nb=ctx.createRadialGradient(W*0.7,H*0.3,0,W*0.7,H*0.3,160);
+  nb.addColorStop(0,'rgba(100,0,180,0.07)');
+  nb.addColorStop(1,'transparent');
+  ctx.fillStyle=nb; ctx.fillRect(0,0,W,H);
+  var nb2=ctx.createRadialGradient(W*0.2,H*0.6,0,W*0.2,H*0.6,130);
+  nb2.addColorStop(0,'rgba(0,80,200,0.07)');
+  nb2.addColorStop(1,'transparent');
+  ctx.fillStyle=nb2; ctx.fillRect(0,0,W,H);
+
+  // Targets
+  GS.targets.forEach(function(t){ drawTarget(ctx,t); });
+
+  // Explosiones
+  GS.explosions.forEach(function(ex){ drawExplosion(ctx,ex); });
+
+  // Balas
+  GS.bullets.forEach(function(b){ drawBullet(ctx,b); });
+
+  // Particles
+  GS.particles.forEach(function(p){
+    ctx.globalAlpha = p.life/p.maxLife;
+    if(p.type==='text'){
+      ctx.fillStyle=p.color; ctx.font='bold 13px monospace'; ctx.textAlign='center';
+      ctx.shadowColor=p.color; ctx.shadowBlur=8;
+      ctx.fillText(p.text,p.x,p.y);
+      ctx.shadowBlur=0;
+    } else {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r||2,0,Math.PI*2);
+      ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=6; ctx.fill();
+      ctx.shadowBlur=0;
+    }
+  });
+  ctx.globalAlpha=1;
+
+  // Motor de la nave (llama)
+  var flameH = 12+Math.sin(GS.tick*0.4)*5;
+  var fg=ctx.createLinearGradient(GS.ship.x,GS.ship.y+10,GS.ship.x,GS.ship.y+10+flameH);
+  fg.addColorStop(0,'rgba(255,200,0,0.95)');
+  fg.addColorStop(0.5,'rgba(255,80,0,0.7)');
+  fg.addColorStop(1,'transparent');
+  ctx.fillStyle=fg;
+  ctx.beginPath(); ctx.moveTo(GS.ship.x-6,GS.ship.y+10); ctx.lineTo(GS.ship.x,GS.ship.y+10+flameH); ctx.lineTo(GS.ship.x+6,GS.ship.y+10); ctx.closePath(); ctx.fill();
+
+  // Nave
+  drawShip(ctx, GS.ship.x, GS.ship.y, 1, '#40c4ff');
+
+  // Combo display
+  if(GS.combo>2 && GS.comboTimer>0){
+    ctx.globalAlpha = Math.min(1, GS.comboTimer/20);
+    ctx.fillStyle='#ffd740'; ctx.font='bold 16px monospace'; ctx.textAlign='center';
+    ctx.shadowColor='#ffd740'; ctx.shadowBlur=14;
+    ctx.fillText('COMBO x'+GS.combo+'!', W/2, 55);
+    ctx.shadowBlur=0; ctx.globalAlpha=1;
+  }
+
+  // HUD - barra inferior
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.fillRect(0,H-28,W,28);
+  // Vidas como corazones de colores
+  for(var i=0;i<GS.lives;i++){
+    ctx.fillStyle=['#ff5252','#ff6d00','#ffd740'][i]||'#ff5252';
+    ctx.font='16px monospace'; ctx.textAlign='left';
+    ctx.fillText('♥',10+i*22,H-9);
+  }
+  // Nivel
+  ctx.fillStyle='#40c4ff'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
+  ctx.fillText('NVL '+GS.level, W/2, H-9);
+  // Score
+  ctx.fillStyle='#ffd740'; ctx.textAlign='right';
+  ctx.fillText(GS.score+' pts', W-10, H-9);
+}
+
+function coordLabel(){
+  var lat=(Math.random()*20-15).toFixed(3);
+  var lon=(Math.random()*20-80).toFixed(3);
+  return (lat>0?'N':'S')+Math.abs(lat)+'°';
+}
+
+function gameOver(GS){
+  GS.running=false;
+  cancelAnimationFrame(GS.raf);
+  document.getElementById('game-status').textContent='💀 GAME OVER — Presiona INICIO para reiniciar';
+  document.getElementById('btn-start').textContent='▶ Inicio';
+  saveScore(GS.score);
+  var ctx=GS.ctx,W=GS.W,H=GS.H;
+  // Overlay oscuro con color
+  var og=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.8);
+  og.addColorStop(0,'rgba(80,0,0,0.85)');
+  og.addColorStop(1,'rgba(0,0,0,0.92)');
+  ctx.fillStyle=og; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#ff5252'; ctx.shadowBlur=30;
+  ctx.fillStyle='#ff5252'; ctx.font='bold 38px monospace'; ctx.textAlign='center';
+  ctx.fillText('GAME OVER',W/2,H/2-28);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#ffd740'; ctx.font='18px monospace';
+  ctx.fillText('Puntaje: '+GS.score,W/2,H/2+14);
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='12px monospace';
+  ctx.fillText('Presiona INICIO para reiniciar',W/2,H/2+46);
+  gameState=null;
 }
 
 function gamePause(){
   if(!gameState) return;
-  gameState.paused = !gameState.paused;
-  document.getElementById('game-status').textContent = gameState.paused ? '⏸ Pausado' : 'En juego...';
-}
-
-async function saveScore(score){
-  if(!currentUser || score===0) return;
-  try {
-    const existing = await fbGet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'));
-    if(!existing || score > (existing.score||0)){
-      await fbSet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'), {
-        name: currentUser.name, score, ts: Date.now()
-      });
-    }
-    loadLeaderboard();
-  } catch(e){}
-}
-
-async function loadLeaderboard(){
-  const el = document.getElementById('leaderboard');
-  if(!el) return;
-  try {
-    const data = await fbGet('/leaderboard');
-    if(!data || typeof data!=='object'){
-      el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>';
-      return;
-    }
-    const scores = Object.values(data).sort((a,b)=>b.score-a.score).slice(0,5);
-    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
-    el.innerHTML = scores.map((s,i)=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
-        <span style="font-size:16px">${medals[i]}</span>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.name}</div>
-        </div>
-        <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--em3)">${s.score}</div>
-      </div>`).join('');
-  } catch(e){
-    el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>';
+  gameState.paused=!gameState.paused;
+  document.getElementById('game-status').textContent=gameState.paused?'⏸ Pausado':'En juego...';
+  if(!gameState.paused){
+    var GS=gameState;
+    function loop(){ if(!GS.running||GS.paused) return; GS.raf=requestAnimationFrame(loop); updateGame(GS); renderGeoBreak(GS); }
+    loop();
   }
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-async function renderAll(){ renderRPProjs(); await renderDashboard(); renderTS(); renderMiniLog(); await updateStats(); }
-initLogin();
-setInterval(async()=>{ if(currentUser){ if(document.getElementById('page-chat').classList.contains('active')) await renderChat(); await renderDashboard(); await updateStats(); } },10000);
-
-// -- GRID CACHE --
-var gridCache={};
-
-// Returns the ISO week key: "2025-W12"
-function getWeekKey(offset){
-  if(offset===undefined) offset=0;
-  var now=new Date();
-  now.setDate(now.getDate()+offset*7);
-  var day=now.getDay()||7;
-  var mon=new Date(now); mon.setDate(now.getDate()-day+1);
-  var yr=mon.getFullYear();
-  var jan4=new Date(yr,0,4);
-  var w=Math.ceil(((mon-jan4)/86400000+jan4.getDay()+1)/7);
-  return yr+'-W'+(w<10?'0':'')+w;
-}
-
-// Returns a label like "Sem 12 · 17-22 Mar 2025"
-function weekKeyToLabel(key){
-  var m=key.match(/(\d+)-W(\d+)/);
-  if(!m) return key;
-  var yr=parseInt(m[1]), wn=parseInt(m[2]);
-  var jan4=new Date(yr,0,4);
-  var mon=new Date(jan4.getTime()+(wn-1)*7*86400000);
-  mon.setDate(mon.getDate()-((mon.getDay()||7)-1));
-  var sat=new Date(mon); sat.setDate(mon.getDate()+5);
-  var fmt=function(d){ return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short'}); };
-  return 'Sem '+wn+' · '+fmt(mon)+' – '+fmt(sat)+' '+yr;
-}
-
-var currentWeekKey=getWeekKey(0); // active week key for timesheet view
-
-async function gg(u,weekKey){
-  if(!weekKey) weekKey=currentWeekKey;
-  var ckey=u+'__'+weekKey;
-  if(gridCache[ckey]) return gridCache[ckey];
-  var local=gs('grid_'+u+'_'+weekKey,{});
-  if(Object.keys(local).length>0) gridCache[ckey]=local;
-  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+weekKey.replace('-','_');
-  var data=await fbGet(fbKey);
-  var result=(data&&typeof data==='object')?data:local;
-  gridCache[ckey]=result; return result;
-}
-async function sg(u,g,weekKey){
-  if(!weekKey) weekKey=currentWeekKey;
-  var ckey=u+'__'+weekKey;
-  gridCache[ckey]=g;
-  ss('grid_'+u+'_'+weekKey,g);
-  var fbKey='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_')+'/'+weekKey.replace('-','_');
-  await fbSet(fbKey,g);
-}
-
-// Get all stored week keys for a user from Firebase
-async function getUserWeeks(u){
-  var fbPath='/grids/'+u.replace(/[^a-zA-Z0-9]/g,'_');
-  var data=await fbGet(fbPath);
-  var weeks=[];
-  if(data&&typeof data==='object'){
-    weeks=Object.keys(data).map(function(k){ return k.replace('_','-'); }).sort().reverse();
-  }
-  // Also include current week even if empty
-  if(weeks.indexOf(currentWeekKey)===-1) weeks.unshift(currentWeekKey);
-  return weeks;
-}
-
-// -- RENDER RP WITH SEARCH --
-function renderRPProjs(filter){
-  if(filter===undefined) filter='';
-  var el=document.getElementById('rp-projs');
-  if(!projects.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px">Sin proyectos</div>';return;}
-  var q=filter.toLowerCase().trim(),html='',count=0;
-  for(var i=0;i<projects.length;i++){
-    var p=projects[i];
-    if(q&&p.code.toLowerCase().indexOf(q)===-1) continue;
-    var act=activeIdx===i?' active':'';
-    var label=q?hlMatch(p.code,q):p.code;
-    html+='<div class="rp-proj'+act+'" onclick="activateProj('+i+')">'
-      +'<div class="rp-pdot" style="background:'+p.color+'"></div>'
-      +'<div class="rp-pcode">'+label+'</div></div>';
-    count++;
-  }
-  if(!count) html='<div style="font-size:11px;color:var(--text3);padding:6px">Sin resultados</div>';
-  el.innerHTML=html;
-}
-function hlMatch(t,q){
-  var i=t.toLowerCase().indexOf(q);
-  if(i===-1) return t;
-  return t.slice(0,i)+'<span style="background:rgba(201,168,76,0.35);color:var(--gold2)">'+t.slice(i,i+q.length)+'</span>'+t.slice(i+q.length);
-}
-
-// -- FIREBASE HELPERS WITH RETRY --
-// -- NOTIFICATIONS --
-var notifEnabled=false,notifInterval=null,titleBlinkInt=null,bannerTO=null;
-var ORIG_TITLE='GEOTRACK - GEOMATICA/FCISA';
-var lastChatId=0,chatPollInterval=null;
-
-async function toggleNotifications(){
-  var btn=document.getElementById('notif-btn');
-  if(!notifEnabled){
-    notifEnabled=true;
-    if(btn) btn.style.borderColor='var(--em)';
-    if('Notification' in window&&Notification.permission==='default') await Notification.requestPermission();
-    startNotifScheduler(); startChatPoller();
-    showToast('Alertas activadas - 15 min sin proyecto, 1h con proyecto');
-    ss('notif_enabled',true);
-  } else {
-    notifEnabled=false;
-    if(btn) btn.style.borderColor='var(--border)';
-    if(notifInterval){clearInterval(notifInterval);notifInterval=null;}
-    if(chatPollInterval){clearInterval(chatPollInterval);chatPollInterval=null;}
-    stopTitleBlink(); ss('notif_enabled',false); showToast('Alertas desactivadas');
-  }
-}
-function startNotifScheduler(){
-  if(notifInterval) clearInterval(notifInterval);
-  notifInterval=setInterval(function(){
-    if(!notifEnabled) return;
-    var now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
-    if(h<9||h>17) return;
-    var hasPrj=activeIdx!==null&&projects[activeIdx];
-    if(!hasPrj&&(m===0||m===15||m===30||m===45)&&s<31) fireAlert('sin',h,m);
-    if(hasPrj&&m===0&&s<31) fireAlert('con',h,m);
-  },30000);
-}
-function fireAlert(type,h,m){
-  if(h===undefined) h=new Date().getHours();
-  if(m===undefined) m=new Date().getMinutes();
-  var h12=h>12?h-12:(h===0?12:h);
-  var ampm=h>=12?'PM':'AM';
-  var minStr=(m&&m!==0)?':'+String(m).padStart(2,'0'):'';
-  var title,msg;
-  if(type==='sin'||type==='test'){
-    title='Sin proyecto activo - '+h12+minStr+' '+ampm;
-    msg='Llevas tiempo sin registrar proyecto. En que estas trabajando?';
-  } else {
-    var proj=projects[activeIdx]?projects[activeIdx].code:'';
-    title='Actualiza tu timesheet - '+h12+':00 '+ampm;
-    msg='Proyecto: '+proj.substring(0,28)+'. Ya registraste esta hora?';
-  }
-  if('Notification' in window&&Notification.permission==='granted'){
-    try{var n=new Notification(title,{body:msg,tag:'gt-alert'});setTimeout(function(){n.close();},8000);}catch(e){}
-  }
-  showBanner(title,msg,type==='sin'||type==='test'?'warning':'info');
-  startTitleBlink(h12+minStr,ampm,'alert');
-  playBeep();
-}
-function startChatPoller(){
-  if(chatPollInterval) clearInterval(chatPollInterval);
-  chatPollInterval=setInterval(async function(){
-    if(!notifEnabled||!currentUser) return;
-    try{
-      var data=await fbGet('/chat');
-      if(!data||typeof data!=='object') return;
-      var msgs=Object.values(data).sort(function(a,b){return (a.id||0)-(b.id||0);});
-      if(!msgs.length) return;
-      var latest=msgs[msgs.length-1];
-      if(!lastChatId&&latest.id){lastChatId=latest.id;return;}
-      if(latest.id&&latest.id>lastChatId&&latest.user!==currentUser.name){
-        lastChatId=latest.id; notifyChatMsg(latest);
-      }
-    }catch(e){}
-  },60000);
-}
-function notifyChatMsg(msg){
-  var title=msg.user+' en el chat';
-  var text=msg.text.substring(0,80)+(msg.text.length>80?'...':'');
-  if('Notification' in window&&Notification.permission==='granted'){
-    try{var n=new Notification('Chat: '+title,{body:text,tag:'gt-chat'});n.onclick=function(){window.focus();n.close();};setTimeout(function(){n.close();},6000);}catch(e){}
-  }
-  showBanner('Chat: '+title,text,'chat');
-  startTitleBlink(msg.user,'','chat');
-  playChatSound();
-}
-function playChatSound(){
-  try{
-    var ac=new(window.AudioContext||window.webkitAudioContext)();
-    [880,1100].forEach(function(f,i){
-      var o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
-      var t=ac.currentTime+i*0.12;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.08,t+0.04);g.gain.linearRampToValueAtTime(0,t+0.18);
-      o.start(t);o.stop(t+0.2);
-    });
-  }catch(e){}
-}
-function showBanner(title,msg,type){
-  var b=document.getElementById('notif-banner');
-  if(!b) return;
-  document.getElementById('nb-title').textContent=title;
-  document.getElementById('nb-msg').textContent=msg;
-  var cols={warning:'var(--amber)',info:'var(--em)',chat:'#6db8e8'};
-  b.style.borderColor=(cols[type]||'var(--em)');
-  b.classList.add('show');
-  if(bannerTO) clearTimeout(bannerTO);
-  bannerTO=setTimeout(function(){closeBanner();},10000);
-}
-function closeBanner(){
-  var b=document.getElementById('notif-banner');
-  if(b) b.classList.remove('show');
-  if(bannerTO){clearTimeout(bannerTO);bannerTO=null;}
-}
-function startTitleBlink(label,ampm,type){
-  stopTitleBlink(); var blink=true,count=0;
-  var blinkMsg=type==='chat'?('Chat: '+label+' escribio'):(label+(ampm?' '+ampm:'')+' Actualiza timesheet!');
-  titleBlinkInt=setInterval(function(){
-    document.title=blink?blinkMsg:ORIG_TITLE; blink=!blink; count++;
-    if(count>=16) stopTitleBlink();
-  },1000);
-}
-function stopTitleBlink(){
-  if(titleBlinkInt){clearInterval(titleBlinkInt);titleBlinkInt=null;}
-  document.title=ORIG_TITLE;
-}
-function playBeep(){
-  try{
-    var ac=new(window.AudioContext||window.webkitAudioContext)();
-    [523,659,784].forEach(function(f,i){
-      var o=ac.createOscillator(),g=ac.createGain();
-      o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';
-      var t=ac.currentTime+i*0.18;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.12,t+0.05);g.gain.linearRampToValueAtTime(0,t+0.25);
-      o.start(t);o.stop(t+0.3);
-    });
-  }catch(e){}
-}
-function initNotifications(){
-  if(gs('notif_enabled',false)){
-    notifEnabled=true;
-    var btn=document.getElementById('notif-btn');
-    if(btn) btn.style.borderColor='var(--em)';
-    startNotifScheduler(); startChatPoller();
-  }
-}
-function toggleRightPanel(){
-  var rp=document.querySelector('.right-panel');
-  if(rp) rp.classList.toggle('open');
-}
-
-// -- SPACE BACKGROUND --
-(function initSpace(){
-  var cv=document.getElementById('canvas-bg');
-  if(!cv) return;
-  var ctx=cv.getContext('2d'),W,H;
-  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-  resize(); window.addEventListener('resize',resize);
-  var stars=[];
-  for(var i=0;i<200;i++) stars.push({x:Math.random()*1920,y:Math.random()*1080,r:Math.random()*1.3+0.2,o:Math.random()*0.7+0.15,ts:0.004+Math.random()*0.012,to:Math.random()*Math.PI*2});
-  var planets=[
-    {x:1573,y:151,r:36,c:'#3d6b8e',ring:true,ringC:'#5a8aad',ringA:0.35,moons:[{a:0,d:55,r:5,mc:'#7a9bb5',s:0.003}],dvx:0.007,dvy:0.003},
-    {x:211,y:786,r:20,c:'#4a7c59',ring:false,moons:[{a:1.2,d:33,r:3,mc:'#7abf8a',s:0.006}],dvx:-0.005,dvy:0.004},
-    {x:1056,y:939,r:12,c:'#7a5c3a',ring:false,moons:[],dvx:0.005,dvy:-0.003},
-    {x:518,y:183,r:8,c:'#5a4a7a',ring:false,moons:[],dvx:-0.006,dvy:0.005}
-  ];
-  function lgt(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.min(255,v+a).toString(16).padStart(2,'0');}).join('');}
-  function drk(h,a){var n=parseInt(h.slice(1),16);return '#'+[n>>16,n>>8&255,n&255].map(function(v){return Math.max(0,v-a).toString(16).padStart(2,'0');}).join('');}
-  var frame=0,sstar=null;
-  function loop(){
-    ctx.clearRect(0,0,W,H); frame++;
-    stars.forEach(function(s){
-      var tw=0.5+0.5*Math.sin(frame*s.ts+s.to);
-      ctx.globalAlpha=s.o*(0.4+0.6*tw);ctx.fillStyle='#fff';
-      ctx.beginPath();ctx.arc(s.x*(W/1920),s.y*(H/1080),s.r,0,Math.PI*2);ctx.fill();
-    });
-    ctx.globalAlpha=1;
-    planets.forEach(function(p){
-      var x=p.x*(W/1920),y=p.y*(H/1080),r=p.r;
-      var g=ctx.createRadialGradient(x,y,r*0.3,x,y,r*2);
-      g.addColorStop(0,p.c+'44');g.addColorStop(1,'transparent');
-      ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-      if(p.ring){
-        ctx.save();ctx.translate(x,y);ctx.scale(1,Math.sin(p.ringA));
-        ctx.beginPath();ctx.ellipse(0,0,r*1.85,r*1.85,0,0,Math.PI*2);
-        ctx.strokeStyle=p.ringC+'77';ctx.lineWidth=r*0.28;ctx.stroke();ctx.restore();
-      }
-      var bg=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-      bg.addColorStop(0,lgt(p.c,40));bg.addColorStop(0.6,p.c);bg.addColorStop(1,drk(p.c,40));
-      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
-      p.moons.forEach(function(m){
-        m.a+=m.s;
-        var mx=x+Math.cos(m.a)*m.d*(W/1920),my=y+Math.sin(m.a)*m.d*0.5*(H/1080);
-        ctx.beginPath();ctx.arc(mx,my,m.r,0,Math.PI*2);ctx.fillStyle=m.mc+'cc';ctx.fill();
-      });
-      p.x+=p.dvx;p.y+=p.dvy;
-      if(p.x<-100)p.x=1920+100;if(p.x>1920+100)p.x=-100;
-      if(p.y<-100)p.y=1080+100;if(p.y>1080+100)p.y=-100;
-    });
-    if(frame%450===0) sstar={x:Math.random()*W*0.6,y:Math.random()*H*0.3,len:100+Math.random()*100,ang:Math.PI/5+Math.random()*0.3,prog:0};
-    if(sstar){
-      sstar.prog+=0.04;
-      if(sstar.prog>1){sstar=null;}else{
-        var sx=sstar.x+Math.cos(sstar.ang)*sstar.len*sstar.prog;
-        var sy=sstar.y+Math.sin(sstar.ang)*sstar.len*sstar.prog;
-        var tx=sstar.x+Math.cos(sstar.ang)*sstar.len*Math.max(0,sstar.prog-0.3);
-        var ty=sstar.y+Math.sin(sstar.ang)*sstar.len*Math.max(0,sstar.prog-0.3);
-        var sg=ctx.createLinearGradient(tx,ty,sx,sy);
-        sg.addColorStop(0,'transparent');sg.addColorStop(1,'rgba(255,255,220,0.9)');
-        ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(sx,sy);
-        ctx.strokeStyle=sg;ctx.lineWidth=1.5;ctx.stroke();
-      }
-    }
-    requestAnimationFrame(loop);
-  }
-  loop();
-})();
-
-// -- EMOJI PICKER --
-var EMOJIS=['&#128522;','&#128516;','&#128514;','&#128517;','&#128526;','&#129395;','&#127881;','&#128079;','&#128588;','&#128170;','&#128077;','&#128075;','&#129309;','&#9989;','&#10084;','&#128293;','&#11088;','&#128161;','&#128204;','&#128203;','&#128506;','&#127757;','&#127807;','&#128752;','&#128208;','&#128207;','&#128301;','&#127956;','&#127754;','&#127795;','&#9888;','&#10060;','&#10004;','&#128640;','&#128172;','&#128202;','&#128200;','&#128187;','&#128450;','&#128269;','&#128517;','&#129300;','&#128564;','&#128548;','&#129393;','&#128556;','&#129327;','&#129652;','&#128565;','&#129321;','&#9749;','&#127829;','&#127918;','&#127942;','&#129351;','&#127919;','&#8987;','&#128197;','&#128218;','&#128193;'];
-function toggleEmoji(){
-  var panel=document.getElementById('emoji-panel');
-  var open=panel.style.display==='flex';
-  if(!open){
-    if(!panel.children.length){
-      panel.innerHTML=EMOJIS.map(function(e){return '<span onclick="insertEmoji(\''+e+'\')" style="font-size:20px;cursor:pointer;padding:3px 5px;border-radius:4px" onmouseover="this.style.background=\'var(--surface)\'" onmouseout="this.style.background=\'\'">'+e+'</span>';}).join('');
-    }
-    panel.style.display='flex';
-  } else {
-    panel.style.display='none';
-  }
-}
-function insertEmoji(e){
-  var inp=document.getElementById('chat-inp');
-  var pos=inp.selectionStart!=null?inp.selectionStart:inp.value.length;
-  inp.value=inp.value.slice(0,pos)+e+inp.value.slice(pos);
-  inp.focus();inp.selectionStart=inp.selectionEnd=pos+e.length;
-  document.getElementById('emoji-panel').style.display='none';
-}
-
-// -- NEWS --
-var NEWS_ALL=[
-  [{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Claude 3.5: razonamiento espacial avanzado para proyectos ambientales',url:'https://www.anthropic.com/news'},{src:'NASA Earthdata',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Landsat 9: nuevos datasets para monitoreo de cobertura vegetal en Sudamerica',url:'https://earthdata.nasa.gov'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'QGIS 3.36: mejoras de rendimiento y nuevos plugins de analisis espacial',url:'https://qgis.org'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Nuevas directivas para EIA utilizando tecnologia SIG y teledeteccion',url:'https://www.gob.pe/minam'}],
-  [{src:'ESRI ArcGIS',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Pro 3.3: herramientas de analisis geoespacial con inteligencia artificial',url:'https://www.esri.com/arcgis-blog'},{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Sentinel-2 actualizado con cobertura completa para Peru y Latinoamerica',url:'https://earthengine.google.com'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Constitutional AI: sistemas seguros para aplicaciones criticas en medio ambiente',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Actualizacion de datos cartograficos para Lima Metropolitana y zonas mineras',url:'https://www.openstreetmap.org'}],
-  [{src:'NASA Earthdata',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'MODIS Terra: analisis de cambio de uso de suelo en cuencas andinas',url:'https://earthdata.nasa.gov'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'SEIA digital: modernizacion del sistema de evaluacion de impacto ambiental',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Modelos de IA para deteccion de cambios en imagenes satelitales',url:'https://www.anthropic.com/news'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Story Maps para comunicar estudios de impacto ambiental al publico',url:'https://www.esri.com'}],
-  [{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Analisis de deforestacion en la Amazonia con machine learning y GEE',url:'https://earthengine.google.com'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Plugin QGIS para generacion automatica de mapas de vulnerabilidad ambiental',url:'https://qgis.org'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'LLMs aplicados a la interpretacion de normativa ambiental peruana',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Mapeo colaborativo de areas naturales protegidas en Peru con OSM',url:'https://www.openstreetmap.org'}],
-  [{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Inventario nacional de glaciares: avances con teledeteccion y SIG',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Automatizacion de informes ambientales con modelos de lenguaje',url:'https://www.anthropic.com/news'},{src:'NASA',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'SAR Sentinel-1 para mapeo de inundaciones en zonas costeras peruanas',url:'https://earthdata.nasa.gov'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Dashboards ambientales en tiempo real con ArcGIS Online',url:'https://www.esri.com'}],
-  [{src:'Google Earth Engine',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'Tutorial: monitoreo de calidad del agua con indices espectrales en GEE',url:'https://earthengine.google.com'},{src:'QGIS.org',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Automatizacion de cartografia tematica con PyQGIS y modelos de procesamiento',url:'https://qgis.org'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'Interpretabilidad en IA: avances para aplicaciones criticas en ciencias ambientales',url:'https://www.anthropic.com/research'},{src:'OpenStreetMap',tag:'Cartografia',tagColor:'#e07a5f',icon:'MAP',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'Humanitario OSM: cartografia de zonas de riesgo en ciudades andinas',url:'https://www.openstreetmap.org'}],
-  [{src:'NASA',tag:'Satelite',tagColor:'#c9a84c',icon:'SAT',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&q=80',title:'VIIRS: imagenes de incendios forestales activos en America del Sur',url:'https://earthdata.nasa.gov'},{src:'MINAM Peru',tag:'Ambiental',tagColor:'#9b89c4',icon:'ENV',img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',title:'Programa nacional de reforestacion: avances 2025 con monitoreo satelital',url:'https://www.gob.pe/minam'},{src:'Anthropic',tag:'IA',tagColor:'#4ecba0',icon:'AI',img:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',title:'IA en gestion ambiental: casos de exito en Latinoamerica',url:'https://www.anthropic.com/news'},{src:'ESRI',tag:'SIG',tagColor:'#6db8e8',icon:'GIS',img:'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80',title:'ArcGIS Field Maps para trabajo de campo en estudios de impacto ambiental',url:'https://www.esri.com'}]
-];
-function loadNews(){
-  var grid=document.getElementById('news-grid');
-  var list=document.getElementById('news-list');
-  if(!grid||!list) return;
-  grid.innerHTML='<div style="padding:20px;color:var(--text3);grid-column:span 2;font-size:13px">Cargando noticias...</div>';
-  var dayIdx=new Date().getDay();
-  var NEWS=NEWS_ALL[dayIdx]||NEWS_ALL[0];
-  var days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
-  setTimeout(function(){
-    var html='';
-    for(var i=0;i<NEWS.length;i++){
-      var n=NEWS[i];
-      var imgPart=n.img?('<img src="'+n.img+'" class="news-img" data-ph="'+n.icon+'">'):'<div class="news-img-placeholder">'+n.icon+'</div>';
-      html+='<div class="news-card" data-url="'+n.url+'">';
-      html+=imgPart;
-      html+='<div class="news-body">';
-      html+='<div class="news-tag" style="background:'+n.tagColor+'22;color:'+n.tagColor+'">'+n.tag+'</div>';
-      html+='<div class="news-h">'+n.title+'</div>';
-      html+='<div class="news-meta"><span class="news-src2">'+n.src+'</span><span class="news-dt">'+days[dayIdx]+'</span></div>';
-      html+='</div></div>';
-    }
-    grid.innerHTML=html;
-    list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:6px 0">Noticias rotadas cada dia de la semana</div>';
-    grid.querySelectorAll('.news-card').forEach(function(card){
-      card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
-      var img=card.querySelector('img');
-      if(img) img.onerror=function(){this.style.display='none';};
-    });
-  },400);
-}
-
-// -- GAME SOUNDS --
-function playLaser(){
+// ── SOUNDS ────────────────────────────────────────────────────────────────────
+function playShoot(){
   try{
     var ac=new(window.AudioContext||window.webkitAudioContext)();
     var o=ac.createOscillator(),g=ac.createGain();
-    o.connect(g);g.connect(ac.destination);o.type='sawtooth';
-    o.frequency.setValueAtTime(880,ac.currentTime);
-    o.frequency.exponentialRampToValueAtTime(220,ac.currentTime+0.12);
-    g.gain.setValueAtTime(0.15,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);
-    o.start(ac.currentTime);o.stop(ac.currentTime+0.13);
+    o.connect(g);g.connect(ac.destination);o.type='square';
+    o.frequency.setValueAtTime(660,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(220,ac.currentTime+0.08);
+    g.gain.setValueAtTime(0.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);
+    o.start();o.stop(ac.currentTime+0.1);
   }catch(e){}
 }
-function playExplosion(pts){
+function playHit(pts){
   try{
     var ac=new(window.AudioContext||window.webkitAudioContext)();
-    var buf=ac.createBuffer(1,Math.floor(ac.sampleRate*0.3),ac.sampleRate);
-    var data=buf.getChannelData(0);
-    for(var i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5);
-    var src=ac.createBufferSource(),g=ac.createGain(),filt=ac.createBiquadFilter();
-    src.buffer=buf;filt.type='bandpass';filt.frequency.value=pts>=30?180:280;filt.Q.value=0.8;
-    src.connect(filt);filt.connect(g);g.connect(ac.destination);
-    g.gain.setValueAtTime(pts>=30?0.4:0.25,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.3);
-    src.start(ac.currentTime);src.stop(ac.currentTime+0.3);
+    var o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);
+    o.type=pts>=20?'square':'sawtooth';
+    var f=pts>=30?680:pts>=20?440:320;
+    o.frequency.setValueAtTime(f,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f*1.5,ac.currentTime+0.06);
+    g.gain.setValueAtTime(pts>=20?0.18:0.12,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.15);
+    o.start();o.stop(ac.currentTime+0.16);
   }catch(e){}
+}
+
+async function saveScore(score){
+  if(!currentUser||score===0) return;
+  try{
+    var existing=await fbGet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'));
+    if(!existing||score>(existing.score||0)){
+      await fbSet('/leaderboard/'+currentUser.name.replace(/[^a-zA-Z0-9]/g,'_'),{name:currentUser.name,score:score,ts:Date.now()});
+    }
+    loadLeaderboard();
+  }catch(e){}
+}
+
+async function loadLeaderboard(){
+  var el=document.getElementById('leaderboard');
+  if(!el) return;
+  try{
+    var data=await fbGet('/leaderboard');
+    if(!data||typeof data!=='object'){ el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>'; return; }
+    var scores=Object.values(data).sort(function(a,b){return b.score-a.score;}).slice(0,5);
+    var medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+    el.innerHTML=scores.map(function(s,i){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">'
+        +'<span style="font-size:14px">'+medals[i]+'</span>'
+        +'<div style="flex:1;font-size:12px;font-weight:600;color:var(--text)">'+s.name+'</div>'
+        +'<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:#ffd740">'+s.score+'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="font-size:12px;color:var(--text3)">Sin puntajes aún</div>'; }
 }
 </script>
 </body>
