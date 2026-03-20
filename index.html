@@ -717,8 +717,7 @@ select.filter-sel{
         <div class="rp-lbl">Seleccionar proyecto</div>
         <input id="proj-search" type="text" placeholder="Buscar proyecto..." oninput="renderRPProjs(this.value)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;padding:7px 10px;outline:none;margin-bottom:6px;font-family:var(--mono);box-sizing:border-box">
         <div id="rp-projs" style="overflow-y:auto;max-height:300px"></div>
-        <button class="btn sm" style="width:100%;margin-top:8px" onclick="selectFolder()">📂 Cargar carpeta</button>
-        <button class="btn sm" style="width:100%;margin-top:6px" onclick="openAddProj()">+ Agregar manual</button>
+        <button class="btn sm" style="width:100%;margin-top:8px" onclick="openAddProj()">+ Agregar código del proyecto</button>
       </div>
       <div style="border-top:1px solid var(--border);padding:12px 14px">
         <div class="rp-lbl" style="margin-bottom:8px">Log de hoy</div>
@@ -743,9 +742,10 @@ select.filter-sel{
 </div>
 <div class="modal-bg" id="add-proj-modal">
   <div class="modal">
-    <div class="modal-title">Agregar proyecto</div>
-    <div class="modal-desc">Ingresa el código de carpeta del proyecto</div>
+    <div class="modal-title">Agregar código del proyecto</div>
+    <div class="modal-desc">El proyecto será visible para todo el equipo</div>
     <input class="modal-inp" id="new-proj-inp" placeholder="Ej: AS-0333-01_2025-REPSOL">
+    <div id="new-proj-error" style="font-size:12px;color:#e07a5f;min-height:16px;margin-bottom:6px"></div>
     <div class="modal-btns">
       <button class="btn" onclick="document.getElementById('add-proj-modal').classList.remove('open')">Cancelar</button>
       <button class="btn primary" onclick="addProjManual()">Agregar</button>
@@ -950,10 +950,18 @@ function renderMiniLogSync(){
 async function loadRemoteData(){
   try{
     var fbProjs=await fbGet('/projects');
-    if(fbProjs&&Array.isArray(fbProjs)){ projects=fbProjs; renderRPProjs(); }
+    if(fbProjs&&Array.isArray(fbProjs)){
+      projects=fbProjs;
+      ss('projects', projects); // keep local in sync
+    } else {
+      // Firebase empty or offline — fall back to local but don't overwrite FB
+      var local=gs('projects',[]);
+      if(local.length) projects=local;
+    }
+    renderRPProjs();
   }catch(e){}
   try{ await renderDashboard(); }catch(e){ renderDashboardOffline(); }
-  try{ renderTS(); }catch(e){}
+  try{ await initTSFilter(); renderTS(); }catch(e){}
   try{ await updateStats(); }catch(e){}
   try{ setOnline(); }catch(e){}
 }
@@ -1042,33 +1050,31 @@ function navTo(page,btn){
   if(page==='juego'){ initGame(); loadLeaderboard(); }
 }
 
-// ── FOLDER ────────────────────────────────────────────────────────────────────
-async function selectFolder(){
-  try{
-    const dh=await window.showDirectoryPicker({mode:'read'});
-    let n=0; const ex=projects.map(p=>p.code);
-    for await(const e of dh.values()){
-      if(e.kind==='directory' && !ex.includes(e.name) && !e.name.startsWith('.')){
-        projects.push({code:e.name,color:PROJ_COLORS[projects.length%PROJ_COLORS.length]}); n++;
-      }
-    }
-    ss('projects',projects); renderRPProjs(); renderProjects();
-    showToast(n+' proyectos cargados');
-  }catch(e){ if(e.name!=='AbortError') showToast('Error al leer carpeta'); }
-}
-
 async function addProjManual(){
+  if(isGuest){showToast('Modo invitado: no puedes agregar proyectos');return;}
   const v=document.getElementById('new-proj-inp').value.trim();
-  if(!v) return;
-  if(!projects.find(p=>p.code===v)){
-    projects.push({code:v,color:PROJ_COLORS[projects.length%PROJ_COLORS.length]});
-    await fbSet('/projects', projects); ss('projects',projects);
+  const errEl=document.getElementById('new-proj-error');
+  errEl.textContent='';
+  if(!v){ errEl.textContent='Escribe un código de proyecto.'; return; }
+  // Duplicate check — case insensitive
+  if(projects.find(p=>p.code.toLowerCase()===v.toLowerCase())){
+    errEl.textContent='Ese código ya existe en la lista.'; return;
   }
+  projects.push({code:v, color:PROJ_COLORS[projects.length%PROJ_COLORS.length]});
+  await fbSet('/projects', projects);
+  ss('projects', projects);
   document.getElementById('add-proj-modal').classList.remove('open');
   document.getElementById('new-proj-inp').value='';
-  renderRPProjs(); renderProjects(); showToast('Proyecto agregado');
+  renderRPProjs(); renderProjects();
+  showToast('Proyecto agregado: '+v.substring(0,28));
 }
-function openAddProj(){ document.getElementById('add-proj-modal').classList.add('open'); setTimeout(()=>document.getElementById('new-proj-inp').focus(),100); }
+function openAddProj(){
+  if(isGuest){showToast('Modo invitado: no puedes agregar proyectos');return;}
+  document.getElementById('new-proj-error').textContent='';
+  document.getElementById('new-proj-inp').value='';
+  document.getElementById('add-proj-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('new-proj-inp').focus(),100);
+}
 
 // ── PROJECT ACTIVATION ────────────────────────────────────────────────────────
 async function activateProj(i){
