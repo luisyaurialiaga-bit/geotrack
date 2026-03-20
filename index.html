@@ -431,7 +431,7 @@ select.filter-sel{
         <div class="users-list" id="users-list">
           <div class="ucard" onclick="selectUser(0)"><div class="uc-av" style="background:#4ecba022;border-color:#4ecba0;color:#4ecba0">JY</div><div><div class="uc-name">Jose Yauri</div><div class="uc-role">Ing. Geografo</div></div></div>
           <div class="ucard" onclick="selectUser(1)"><div class="uc-av" style="background:#6db8e822;border-color:#6db8e8;color:#6db8e8">ES</div><div><div class="uc-name">Elsa Sanez</div><div class="uc-role">Geografa</div></div></div>
-          <div class="ucard" onclick="selectUser(2)"><div class="uc-av" style="background:#c9a84c22;border-color:#c9a84c;color:#c9a84c">KG</div><div><div class="uc-name">Katherine Gabriel</div><div class="uc-role">Ing. Ambiental</div></div></div>
+          <div class="ucard" onclick="selectUser(2)"><div class="uc-av" style="background:#c9a84c22;border-color:#c9a84c;color:#c9a84c">KG</div><div><div class="uc-name">Katherine Grabiel</div><div class="uc-role">Ing. Ambiental</div></div></div>
           <div class="ucard" onclick="selectUser(3)"><div class="uc-av" style="background:#e07a5f22;border-color:#e07a5f;color:#e07a5f">JR</div><div><div class="uc-name">Jhojan Rivera</div><div class="uc-role">Ing. Ambiental</div></div></div>
           <div class="ucard" onclick="selectUser(4)"><div class="uc-av" style="background:#9b89c422;border-color:#9b89c4;color:#9b89c4">DD</div><div><div class="uc-name">Daniel Davila</div><div class="uc-role">Ing. Ambiental</div></div></div>
         </div>
@@ -840,7 +840,7 @@ var FIREBASE_URL=FB;
 const TEAM = [
   { name:'Jose Yauri',        role:'Ing. Geógrafo · Geomática',  color:'#4ecba0', init:'JY' },
   { name:'Elsa Sanez',        role:'Geógrafa · Geomática',       color:'#6db8e8', init:'ES' },
-  { name:'Katherine Gabriel', role:'Ing. Ambiental · Geomática', color:'#c9a84c', init:'KG' },
+  { name:'Katherine Grabiel', role:'Ing. Ambiental · Geomática', color:'#c9a84c', init:'KG' },
   { name:'Jhojan Rivera',     role:'Ing. Ambiental · Geomática', color:'#e07a5f', init:'JR' },
   { name:'Daniel Dávila',     role:'Ing. Ambiental · Geomática', color:'#9b89c4', init:'DD' },
 ];
@@ -900,7 +900,7 @@ const ss  = (k,v) => { try { localStorage.setItem('gt2_'+k,JSON.stringify(v)); }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function initLogin(){ /* buttons are static HTML */ }
-var PINS={'Jose Yauri':'1924','Elsa Sanez':'0920','Katherine Gabriel':'7536','Jhojan Rivera':'0509','Daniel Dávila':'2304'};
+var PINS={'Jose Yauri':'1924','Elsa Sanez':'0920','Katherine Grabiel':'7536','Jhojan Rivera':'0509','Daniel Dávila':'2304'};
 var pinBuffer='',pendingUserIdx=-1,isGuest=false;
 
 function selectUser(i){
